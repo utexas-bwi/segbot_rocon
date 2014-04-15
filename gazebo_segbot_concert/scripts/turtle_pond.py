@@ -77,7 +77,7 @@ class TurtlePond:
         '''
         resource = scheduler_msgs.Resource()
         resource.id = unique_id.toMsg(unique_id.fromRandom())
-        resource.rapp = 'turtle_concert/turtle_stroll'
+        resource.rapp = 'gazebo_segbot_concert/turtle_stroll'
         resource.uri = 'rocon:/'
         resource_request_id = self.requester.new_request([resource], priority=self.service_priority)
         self.pending_requests.append(resource_request_id)

@@ -1,5 +1,5 @@
 <package>
-  <name>turtle_concert</name>
+  <name>gazebo_segbot_concert</name>
   <version>0.5.6</version>
   <description>
     A very simple software concert.
@@ -7,7 +7,7 @@
   <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
   <maintainer email="jihoonlee.in@gmail.com">Jihoon Lee</maintainer>
   <license>BSD</license>
-  <url type="website">http://ros.org/wiki/turtle_concert</url>
+  <url type="website">http://ros.org/wiki/gazebo_segbot_concert</url>
   <url type="repository">https://github.com/robotics-in-concert/rocon_tutorials</url>
   <url type="bugtracker">https://github.com/robotics-in-concert/rocon_tutorials/issues</url>
   <author email="d.stonier@gmail.com">Daniel Stonier</author>

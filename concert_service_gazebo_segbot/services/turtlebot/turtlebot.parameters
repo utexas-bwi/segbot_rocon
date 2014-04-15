@@ -1,5 +1,0 @@
-turtlebots:
-  - name: kobuki
-    location: [0.0, 0.0, 0.0]
-  - name: guimul
-    location: [0.0, 2.0, 0.0]

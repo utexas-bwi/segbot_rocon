@@ -3,7 +3,7 @@
 ##############################################################################
 
 cmake_minimum_required(VERSION 2.8.3)
-project(concert_service_gazebo)
+project(concert_service_gazebo_segbot)
 
 ##############################################################################
 # Catkin
@@ -11,7 +11,6 @@ project(concert_service_gazebo)
 
 find_package(catkin REQUIRED)
 catkin_package()
-catkin_python_setup()
 
 ##############################################################################
 # Installs
@@ -20,7 +19,6 @@ catkin_python_setup()
 
 install(
     PROGRAMS 
-    #        scripts/gazebo_turtlebot_manager
              scripts/gazebo_segbot_manager
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
     )

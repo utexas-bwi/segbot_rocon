@@ -1,4 +1,0 @@
-<launch>
-  <rosparam ns="services/test" command="load" file="$(find concert_service_gazebo)/services/segbot/segbot.parameters" />
-  <node name="gazebo_segbot_manager" pkg="concert_service_gazebo" type="gazebo_segbot_manager"/>
-</launch>
