@@ -1,0 +1,23 @@
+<launch>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" />
+
+  <group ns="kobuki">
+    <include file="$(find segbot_gazebo)/launch/segbot_mobile_base.launch">
+      <arg name="robotid" value="kobuki" />
+      <arg name="tf_prefix" value="/kobuki" />
+      <arg name="x" value="0" />
+      <arg name="y" value="0" />
+    </include>
+  </group>
+
+  <group ns="guimul">
+    <include file="$(find segbot_gazebo)/launch/segbot_mobile_base.launch">
+      <arg name="robotid" value="guimul" />
+      <arg name="tf_prefix" value="/guimul" />
+      <arg name="x" value="0" />
+      <arg name="y" value="2" />
+    </include>
+  </group>
+
+</launch>

@@ -1,0 +1,21 @@
+<!--
+  Launches the infrastructure running on a robot. 
+ -->
+<launch>
+  <arg name="robot_name" default="robot"/>
+  <arg name="robot_rapp_whitelist" default="[]"/>
+  <arg name="robot_concert_whitelist" default=""/>
+
+  <include file="$(find rocon_app_manager)/launch/concert_client.launch">
+    <arg name="robot_name" value="$(arg robot_name)"/>
+    <arg name="concert_whitelist" value="$(arg robot_concert_whitelist)"/>
+    <arg name="robot_type" value="pc"/>
+    <arg name="rapp_package_whitelist" value="$(arg robot_rapp_whitelist)" />
+    <arg name="rapp_package_blacklist" value="[]" />
+    <arg name="gateway_watch_loop_period" value="1"/> <!-- flip faster, convenient -->
+    <arg name="gateway_firewall" value="false"/>
+    <arg name="disable_uuids" value="true"/>
+    <arg name="local_remote_controllers_only" value="true"/>
+    <arg name="screen" value="true" />
+  </include>
+</launch>

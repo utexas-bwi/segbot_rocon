@@ -1,0 +1,21 @@
+<launch>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" />
+
+  <group ns="kobuki">
+    <param name="tf_prefix" value="/kobuki" />
+    <include file="$(find concert_service_gazebo)/launch/turtlebot/turtlebot.launch">
+      <arg name="name" value="kobuki" />
+      <arg name="initial_pose" value="-x 0 -y 0" />
+    </include>
+  </group>
+
+  <group ns="guimul">
+    <param name="tf_prefix" value="/guimul" />
+    <include file="$(find concert_service_gazebo)/launch/turtlebot/turtlebot.launch">
+      <arg name="name" value="guimul" />
+      <arg name="initial_pose" value="-x 0 -y 2" />
+    </include>
+  </group>
+
+</launch>

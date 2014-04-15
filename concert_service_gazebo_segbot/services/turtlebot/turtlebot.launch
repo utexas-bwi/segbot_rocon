@@ -1,0 +1,10 @@
+<launch>
+
+  <!-- launch an empty environment -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" />
+
+  <!-- launch the gazebo robot spawner -->
+  <node pkg="concert_service_gazebo" type="gazebo_turtlebot_manager" 
+    name="gazebo_turtlebot_manager"/>
+
+</launch>
