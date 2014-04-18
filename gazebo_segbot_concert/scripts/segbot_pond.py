@@ -7,7 +7,7 @@
 # About
 ##############################################################################
 
-# Simple script to request a pre-configured number of strolling turtles.
+# Simple script to request a pre-configured number of strolling segbots.
 # This could also be done with link graphs, but chatter concert does that.
 
 ##############################################################################
@@ -28,10 +28,10 @@ import rocon_uri
 ##############################################################################
 
 
-class TurtlePond:
+class SegbotPond:
     '''
-      Requets handling for getting its mittens on some turtle_stroll'ing
-      turtles.
+      Requets handling for getting its mittens on some segbot_stroll'ing
+      segbots.
     '''
     __slots__ = [
         'service_name',
@@ -55,29 +55,29 @@ class TurtlePond:
         self.requester = self.setup_requester(self.service_id)
         self.pending_requests = []
         self.allocated_requests = []
-        number_of_turtles = rospy.get_param("turtles", default=1)
+        number_of_segbots = rospy.get_param("segbots", default=1)
         rospy.sleep(10.0)
-        rospy.loginfo("TurtlePond : requesting %s turtles" % number_of_turtles)
-        for unused_i in range(0, number_of_turtles):
-            self.request_turtle()
+        rospy.loginfo("SegbotPond : requesting %s segbots" % number_of_segbots)
+        for unused_i in range(0, number_of_segbots):
+            self.request_segbot()
 
     def setup_requester(self, uuid):
         try:
             scheduler_requests_topic_name = concert_service_utilities.find_scheduler_requests_topic()
             #rospy.loginfo("Service : found scheduler [%s][%s]" % (topic_name))
         except rocon_python_comms.NotFoundException as e:
-            rospy.logerr("TurtlePond : %s" % (str(e)))
+            rospy.logerr("SegbotPond : %s" % (str(e)))
             return  # raise an exception here?
         frequency = concert_scheduler_requests.common.HEARTBEAT_HZ
         return concert_scheduler_requests.Requester(self.requester_feedback, uuid, 0, scheduler_requests_topic_name, frequency)
 
-    def request_turtle(self):
+    def request_segbot(self):
         '''
-         Request a turtle.
+         Request a segbot.
         '''
         resource = scheduler_msgs.Resource()
         resource.id = unique_id.toMsg(unique_id.fromRandom())
-        resource.rapp = 'gazebo_segbot_concert/turtle_stroll'
+        resource.rapp = 'gazebo_segbot_concert/segbot_stroll'
         resource.uri = 'rocon:/'
         resource_request_id = self.requester.new_request([resource], priority=self.service_priority)
         self.pending_requests.append(resource_request_id)
@@ -108,7 +108,7 @@ class TurtlePond:
                     request.cancel()
             # Need to add logic here for when the request gets released
         for unused_i in range(0, cancelled_requests):
-            self.request_turtle()
+            self.request_segbot()
 
     def cancel_all_requests(self):
         '''
@@ -125,8 +125,8 @@ class TurtlePond:
 
 if __name__ == '__main__':
 
-    rospy.init_node('turtle_pond')
-    turtle_pond = TurtlePond()
+    rospy.init_node('segbot_pond')
+    segbot_pond = SegbotPond()
     rospy.spin()
     if not rospy.is_shutdown():
-        turtle_pond.cancel_all_requests()
+        segbot_pond.cancel_all_requests()

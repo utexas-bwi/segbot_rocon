@@ -1,7 +1,0 @@
-name: Turtle Pond
-description: Turtles on the pond.
-author: Yujin Robot
-launcher_type: roslaunch
-launcher: gazebo_segbot_concert/turtle_pond
-interactions: gazebo_segbot_concert/turtle_pond
-parameters: gazebo_segbot_concert/turtle_pond

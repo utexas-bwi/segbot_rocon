@@ -1,5 +1,5 @@
 <launch>
-    <arg name="gazebo_services" default="concert_service_gazebo/gazebo.services"/>
+    <arg name="gazebo_services" default="gazebo_segbot_concert/gazebo.services"/>
     <arg name="concert_name" default="Gazebo Concert"/>
     <arg name="scheduler_type" default="compatibility_tree"/>
 
