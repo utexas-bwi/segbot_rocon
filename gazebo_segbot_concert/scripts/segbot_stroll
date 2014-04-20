@@ -25,7 +25,9 @@ def segbot_stroll():
 
     # Waits until the action server has started up and started
     # listening for goals.
-    client.wait_for_server()
+    while not rospy.is_shutdown():
+        if client.wait_for_server(rospy.Duration(5)):
+            break
 
     while True:
         # Creates a goal to send to the action server.

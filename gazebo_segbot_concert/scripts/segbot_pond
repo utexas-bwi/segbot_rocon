@@ -56,7 +56,7 @@ class SegbotPond:
         self.pending_requests = []
         self.allocated_requests = []
         number_of_segbots = rospy.get_param("segbots", default=1)
-        rospy.sleep(30.0)
+        rospy.sleep(15.0)
         rospy.loginfo("SegbotPond : requesting %s segbots" % number_of_segbots)
         for unused_i in range(0, number_of_segbots):
             self.request_segbot()
