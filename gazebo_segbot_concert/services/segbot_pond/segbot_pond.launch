@@ -1,8 +1,3 @@
 <launch>
-  <!-- 
-  <node pkg="concert_service_link_graph" name="static_link_graph" type="static_link_graph_service.py">
-    <param name="filename" value="$(find gazebo_segbot_concert)/services/segbot_pond/segbot_pond.link_graph"/>
-  </node>
-   -->
-  <node pkg="gazebo_segbot_concert" name="segbot_pond" type="segbot_pond.py"/>
+  <node pkg="gazebo_segbot_concert" name="segbot_pond" type="segbot_pond"/>
 </launch>

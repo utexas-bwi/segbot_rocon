@@ -119,6 +119,9 @@ if __name__ == '__main__':
     segbot_manager = SegbotManager('/services/' + service_name + '/')
     gazebo_segbot_manager = GazeboRobotManager(segbot_manager)
     gazebo_segbot_manager.spawn_robots(segbots)
-    while not rospy.is_shutdown() and not gazebo_segbot_manager.is_disabled:
-        rospy.sleep(0.3)
+    try:
+        while not rospy.is_shutdown() and not gazebo_segbot_manager.is_disabled:
+            rospy.sleep(0.3)
+    except rospy.ROSInterruptException:
+        pass
     gazebo_segbot_manager.shutdown()
