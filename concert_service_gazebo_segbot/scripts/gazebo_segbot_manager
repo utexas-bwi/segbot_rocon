@@ -13,7 +13,7 @@ import tempfile
 from gateway_msgs.msg import Rule, ConnectionType
 from gazebo_msgs.srv import DeleteModel, DeleteModelRequest
 
-from concert_service_gazebo import GazeboRobotManager 
+from concert_service_gazebo import GazeboRobotManager, RobotManager 
 
 def reformat_position_vector(position_vector):
     if len(position_vector) == 2:
@@ -61,7 +61,7 @@ def start_roslaunch_process(launch_script):
     process = subprocess.Popen(command_args, env=roslaunch_env)
     return process
 
-class SegbotManager:
+class SegbotManager(RobotManager):
 
     def __init__(self, namespace = '/'):
         rospy.wait_for_service(namespace + 'gazebo/delete_model')
@@ -82,10 +82,10 @@ class SegbotManager:
         except rospy.ServiceException:  # communication failed
             rospy.logerr("GazeboSegbotManager : unable to delete model %s" % name)
 
-    def prepare_rocon_launch_text(self, turtles):
+    def prepare_rocon_launch_text(self, robots):
         port = 11
         launch_text = '<concert>\n'
-        for name in turtles:
+        for name in robots:
             launch_text += '  <launch title="%s:114%s" package="concert_service_gazebo" name="robot.launch" port="114%s">\n' % (name, str(port), str(port))
             launch_text += '    <arg name="robot_name" value="%s"/>\n' % name
             launch_text += '    <arg name="robot_concert_whitelist" value="Gazebo Concert;Concert Tutorial"/>\n'
