@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-#
-# License: BSD
-#   https://raw.github.com/robotics-in-concert/concert_services/license/LICENSE
-#
 
 import concert_service_utilities
 import os
@@ -16,6 +12,9 @@ from gazebo_msgs.srv import DeleteModel, DeleteModelRequest
 from concert_service_gazebo import GazeboRobotManager, RobotManager 
 
 def reformat_position_vector(position_vector):
+    """
+    Reformats position vector so that it can be used with the segbot launch script
+    """
     if len(position_vector) == 2:
         return [position_vector[0],
                 position_vector[1],
@@ -28,6 +27,10 @@ def reformat_position_vector(position_vector):
     return [position_vector[x] if x < len(position_vector) else 0.0 for x in range(6)]
 
 def generate_spawn_robot_launch_script(name, gazebo_name, location):
+    """
+    Generates the roslaunch script for a single robot, wrapping the appropriate
+    launch file in segbot_gazebo
+    """
     launch_text = '<launch>\n'
     launch_text += '  <group ns="%s">\n' % name
     launch_text += '    <include file="$(find segbot_gazebo)/launch/segbot_mobile_base.launch">'
@@ -46,6 +49,11 @@ def generate_spawn_robot_launch_script(name, gazebo_name, location):
     return launch_text
 
 def start_roslaunch_process(launch_script):
+    """
+    Robots are spawned using roslaunch instead of gazebo/spawn_model so that
+    a few other scripts such as robot_state_publisher can also be launched.
+    This convenience function helps launch a roslaunch script
+    """
     temp = tempfile.NamedTemporaryFile(mode='w+t', delete=False)
     temp.write(launch_script)
     temp.close()
