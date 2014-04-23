@@ -43,6 +43,7 @@ def generate_spawn_robot_launch_script(name, gazebo_name, location):
     launch_text += '      <arg name="roll" value="%s"/>\n' % location[3]
     launch_text += '      <arg name="pitch" value="%s"/>\n' % location[4]
     launch_text += '      <arg name="yaw" value="%s"/>\n' % location[5]
+    # launch_text += '      <arg name="use_full_gazebo_model" value="false"/>\n'
     launch_text += '    </include>\n'
     launch_text += '  </group>\n'
     launch_text += '</launch>\n'
