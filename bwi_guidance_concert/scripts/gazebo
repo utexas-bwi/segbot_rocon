@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+from concert_service_gazebo_segbot import SegbotManager
+
+class GuidanceSegbotManager(SegbotManager):
+    def prepare_rocon_launch_text(self, robots):
+        port = 11
+        launch_text = '<concert>\n'
+        for name in robots:
+            launch_text += '  <launch title="%s:114%s" package="concert_service_gazebo" name="robot.launch" port="114%s">\n' % (name, str(port), str(port))
+            launch_text += '    <arg name="robot_name" value="%s"/>\n' % name
+            launch_text += '    <arg name="robot_concert_whitelist" value="Gazebo Concert;Concert Tutorial"/>\n'
+            launch_text += '    <arg name="robot_rapp_whitelist" value="[rocon_apps, segbot_rapps, gazebo_segbot_concert]"/>\n'
+            launch_text += '  </launch>\n'
+            port = port + 1
+        launch_text += '</concert>\n'
+        return launch_text
+
+    def get_flip_rule_list(self, name):
+        # Needs service proxy for only updating the robot image, movement handled by experiment service directly talking to gazebo service
+        return [Rule(ConnectionType.SUBSCRIBER, '/' + name + '/cmd_vel', None),
+                Rule(ConnectionType.PUBLISHER, '/' + name + '/odom', None),
+                Rule(ConnectionType.PUBLISHER, '/' + name + '/scan_filtered', None),
+                Rule(ConnectionType.PUBLISHER, '/clock', None)]
+
+##############################################################################
+# Launch point
+##############################################################################
+
+if __name__ == '__main__':
+
+    rospy.init_node('gazebo_segbot_manager')
+    (service_name, unused_service_description, unused_service_id, unused_key) = concert_service_utilities.get_service_info()
+    # segbots = rospy.get_param('/services/' + service_name + '/segbots', [])
+    segbots = rospy.get_param('segbots', [])
+    rospy.loginfo("GazeboSegbotManager: spawning segbots : %s" % segbots)
+
+    segbot_manager = SegbotManager('/services/' + service_name + '/')
+    gazebo_segbot_manager = GazeboRobotManager(segbot_manager)
+    gazebo_segbot_manager.spawn_robots(segbots)
+    try:
+        while not rospy.is_shutdown() and not gazebo_segbot_manager.is_disabled:
+            rospy.sleep(0.3)
+    except rospy.ROSInterruptException:
+        pass
+    gazebo_segbot_manager.shutdown()
