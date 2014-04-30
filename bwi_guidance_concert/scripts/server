@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+
+import rospy
+
+from bwi_guidance import ExperimentServer
+from concert_msgs.srv import EnableService, EnableServiceRequest
+
+class ConcertExperimentLauncher:
+
+    def __init__(self):
+
+        rospy.loginfo("Waiting for the concert service manager...")
+        rospy.wait_for_service('enable_service')
+        rospy.loginfo("  Found!")
+        self.enable_service = rospy.ServiceProxy('enable_service', EnableService)
+
+        # List of current enabled services
+        self.services = []
+
+    def _close_all_services(self):
+        for service in self.services:
+            req = EnableServiceRequest(name=service, enable=False)
+            self.enable_service(req)
+
+    def shutdown(self):
+        self._close_all_services()
+
+    def start_experiment(self, uid, name, email, use_heuristic):
+
+        # Set parameters correctly for the experiment service
+
+        # Enable the two necessary services
+        services = [
+            'bwi_guidance_concert/gazebo_service',
+            'bwi_guidance_concert/experiment_service'
+        ]
+        for service in services:
+            req = EnableServiceRequest(name=service, enable=True)
+            self.enable_service(req)
+
+        # req = EnableServiceRequest(name='bwi_guidance_concert/gazebo_segbot', enable=True)
+        # req = EnableServiceRequest(name='bwi_guidance_concert/experiment_service', enable=True)
+        # # Enable the experiment and gazebo services, sending the correct 
+        # # parameters to the experiment service
+        # log_file = self.logs_folder + "/" + uid + ".log"
+        # self.log = open(log_file, "w")
+        # rospy.loginfo("  Log at: " + log_file)
+        # use_heuristic_text = 'true' if use_heuristic else 'false'
+        # rospy.loginfo("  use heuristic: " + use_heuristic_text)
+        # process = bwi_tools.start_roslaunch_process(
+        #         self.package, self.script,
+        #         args={'uid': uid, 'name': name, 'email': email, 
+        #               'use_heuristic': use_heuristic_text},
+        #         log=self.log)
+        # self.processes.append(process)
+
+    def stop_experiment(self):
+        self._close_all_services()
+
+if __name__ == '__main__':
+    try:
+        launcher = ConcertExperimentLauncher()
+        server = ExperimentServer(launcher=launcher)
+        server.start()
+    except rospy.ROSInterruptException:
+        pass
+
