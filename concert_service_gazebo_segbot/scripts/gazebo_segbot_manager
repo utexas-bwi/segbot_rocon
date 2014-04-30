@@ -2,6 +2,8 @@
 
 import concert_service_utilities
 import os
+import rocon_python_utils
+import rospkg
 import rospy
 import subprocess
 import tempfile
@@ -26,7 +28,9 @@ def reformat_position_vector(position_vector):
                 position_vector[2]]
     return [position_vector[x] if x < len(position_vector) else 0.0 for x in range(6)]
 
-def generate_spawn_robot_launch_script(name, gazebo_name, location):
+def generate_spawn_robot_launch_script(name, gazebo_name, location, 
+                                       use_full_gazebo_model=False,
+                                       configuration_file=None):
     """
     Generates the roslaunch script for a single robot, wrapping the appropriate
     launch file in segbot_gazebo
@@ -43,7 +47,12 @@ def generate_spawn_robot_launch_script(name, gazebo_name, location):
     launch_text += '      <arg name="roll" value="%s"/>\n' % location[3]
     launch_text += '      <arg name="pitch" value="%s"/>\n' % location[4]
     launch_text += '      <arg name="yaw" value="%s"/>\n' % location[5]
-    launch_text += '      <arg name="use_full_gazebo_model" value="false"/>\n'
+    if use_full_gazebo_model:
+        launch_text += '      <arg name="use_full_gazebo_model" value="true"/>\n'
+    else:
+        launch_text += '      <arg name="use_full_gazebo_model" value="false"/>\n'
+    if configuration_file:
+        launch_text += '      <arg name="configuration_file" value="%s"/>\n' % configuration_file
     launch_text += '    </include>\n'
     launch_text += '  </group>\n'
     launch_text += '</launch>\n'
@@ -76,11 +85,22 @@ class SegbotManager(RobotManager):
         rospy.wait_for_service(namespace + 'gazebo/delete_model')
         self.delete_model = rospy.ServiceProxy(namespace + 'gazebo/delete_model', DeleteModel)
         self.namespace = namespace
+        self.use_full_gazebo_model = rospy.get_param('use_full_gazebo_model', False)
+        self.configuration_file = rospy.get_param('configuration_file', None)
+        if self.configuration_file != None:
+            try:
+                filename = self._resolve_filename(self.configuration_file)
+                self.configuration_file = rocon_python_utils.ros.find_resource_from_string(self.configuration_file)
+            except rospkg.ResourceNotFound:
+                raise rospkg.ResourceNotFound("could not resolve configuration file [%s]" % self.configuration_file)
         self.processes = {}
 
     def spawn_robot(self, name, position_vector):
         reformatted_position_vector = reformat_position_vector(position_vector)
-        launch_script = generate_spawn_robot_launch_script(name, self.namespace + '/gazebo', reformatted_position_vector)
+        launch_script = generate_spawn_robot_launch_script(name, self.namespace + '/gazebo', 
+                                                           reformatted_position_vector,
+                                                           self.use_full_gazebo_model,
+                                                           self.configuration_file)
         self.processes[name] = start_roslaunch_process(launch_script)
 
     def delete_robot(self, name):
@@ -122,7 +142,8 @@ if __name__ == '__main__':
 
     rospy.init_node('gazebo_segbot_manager')
     (service_name, unused_service_description, unused_service_id, unused_key) = concert_service_utilities.get_service_info()
-    segbots = rospy.get_param('/services/' + service_name + '/segbots', [])
+    # segbots = rospy.get_param('/services/' + service_name + '/segbots', [])
+    segbots = rospy.get_param('segbots', [])
     rospy.loginfo("GazeboSegbotManager: spawning segbots : %s" % segbots)
 
     segbot_manager = SegbotManager('/services/' + service_name + '/')
