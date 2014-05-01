@@ -31,8 +31,8 @@ class ConcertExperimentLauncher:
 
         # Enable the two necessary services
         services = [
-            'bwi_guidance_concert/gazebo_service',
-            'bwi_guidance_concert/experiment_service'
+            'bwi_guidance_concert/gazebo'#,
+            #'bwi_guidance_concert/experiment_service'
         ]
         for service in services:
             req = EnableServiceRequest(name=service, enable=True)

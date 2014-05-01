@@ -87,7 +87,6 @@ class SegbotManager(RobotManager):
         self.configuration_file = rospy.get_param('configuration_file', None)
         if self.configuration_file != None:
             try:
-                filename = self._resolve_filename(self.configuration_file)
                 self.configuration_file = rocon_python_utils.ros.find_resource_from_string(self.configuration_file)
             except rospkg.ResourceNotFound:
                 raise rospkg.ResourceNotFound("could not resolve configuration file [%s]" % self.configuration_file)

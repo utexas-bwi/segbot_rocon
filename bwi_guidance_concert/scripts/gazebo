@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 
+import concert_service_utilities
+import rospy
+
+from concert_service_gazebo import GazeboRobotManager
 from concert_service_segbot_gazebo import SegbotManager
 
+from gateway_msgs.msg import ConnectionType, Rule
+
 class GuidanceSegbotManager(SegbotManager):
+
     def prepare_rocon_launch_text(self, robots):
         port = 11
         launch_text = '<concert>\n'
         for name in robots:
             launch_text += '  <launch title="%s:114%s" package="concert_service_gazebo" name="robot.launch" port="114%s">\n' % (name, str(port), str(port))
             launch_text += '    <arg name="robot_name" value="%s"/>\n' % name
-            launch_text += '    <arg name="robot_concert_whitelist" value="Gazebo Concert;Concert Tutorial"/>\n'
-            launch_text += '    <arg name="robot_rapp_whitelist" value="[rocon_apps, segbot_rapps, segbot_gazebo_concert]"/>\n'
+            launch_text += '    <arg name="robot_concert_whitelist" value="BWI Guidance Concert;Gazebo Concert;Concert Tutorial"/>\n'
+            launch_text += '    <arg name="robot_rapp_whitelist" value="[rocon_apps, segbot_rapps, segbot_gazebo_concert, bwi_guidance_concert]"/>\n'
             launch_text += '  </launch>\n'
             port = port + 1
         launch_text += '</concert>\n'

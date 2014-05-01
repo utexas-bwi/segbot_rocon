@@ -3,6 +3,6 @@ description: Launch multiple segbots in Gazebo using the Concert Framework
 author: Piyush Khandelwal
 priority: 3
 launcher_type: roslaunch
-launcher: bwi_guidance_concert/gazebo
+launcher: bwi_guidance_concert/gazebo.launch
 icon: bwi_guidance_concert/gazebo.png
-parameters: bwi_guidance_concert/gazebo
+parameters: bwi_guidance_concert/gazebo.parameters

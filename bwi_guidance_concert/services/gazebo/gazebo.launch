@@ -2,17 +2,20 @@
 
   <!-- launch an empty environment -->
   <param name="/use_sim_time" value="true" />
-  <include file="$(find concert_service_segbot_gazebo)/launch/segbot_empty_world.launch" />
+  <include file="$(find bwi_guidance)/launch/map3_gazebo.launch" />
 
-  <!-- launch an empty world map server -->
-  <node name="map_server" type="map_server" pkg="map_server"
-    args="$(find concert_service_segbot_gazebo)/maps/empty_world.yaml">
-    <remap from="map" to="/map" />
-    <remap from="static_map" to="/static_map" />
-  </node>
+  <!-- Launch the person with their very own map server -->
+  <group ns="person">
+    <arg name="personid" default="person" />
+    <include file="$(find bwi_gazebo_entities)/launch/controllable_person.launch">
+      <arg name="world" value="services/bwi_guidance_gazebo_service/gazebo" />
+      <arg name="x" value="1.2" />
+      <arg name="y" value="1.2" />
+      <arg name="personid" default="$(arg personid)" />
+    </include>
+  </group>
 
   <!-- launch the gazebo robot spawner -->
-  <node pkg="concert_service_segbot_gazebo" type="segbot_gazebo_manager" 
-    name="segbot_gazebo_manager"/>
+  <node pkg="bwi_guidance_concert" type="gazebo" name="segbot_gazebo_manager"/>
 
 </launch>

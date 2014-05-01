@@ -1,0 +1,11 @@
+<concert>
+
+  <arg name="scheduler_type" default="compatibility_tree"/> <!-- compatibility_tree, simple -->
+
+  <launch title="concert:11311" package="bwi_guidance_concert" name="concert.launch" port="11311">
+    <arg name="guidance_services" value="bwi_guidance_concert/guidance.services"/>
+    <arg name="concert_name" value="BWI Guidance Concert"/>
+    <arg name="scheduler_type" value="$(arg scheduler_type)"/>
+  </launch>
+
+</concert>

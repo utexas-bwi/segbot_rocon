@@ -1,5 +1,23 @@
 segbots:
-  - name: kobuki
-    location: [0.0, 0.0, 0.0]
-  - name: guimul
-    location: [0.0, -2.0, 3.14159265359]
+  - name: robot1
+    location: [500.0, 500.0, 0.0]
+  - name: robot2
+    location: [502.0, 500.0, 0.0]
+  - name: robot3
+    location: [504.0, 500.0, 0.0]
+  - name: robot4
+    location: [506.0, 500.0, 0.0]
+  - name: robot5
+    location: [508.0, 500.0, 0.0]
+  - name: robot6
+    location: [510.0, 500.0, 0.0]
+  - name: robot7
+    location: [512.0, 500.0, 0.0]
+  - name: robot8
+    location: [514.0, 500.0, 0.0]
+  - name: robot9
+    location: [516.0, 500.0, 0.0]
+  - name: robot10
+    location: [518.0, 500.0, 0.0]
+configuration_file: segbot_bringup/auxiliary.segbot.launch.xml
+use_full_gazebo_model: false
