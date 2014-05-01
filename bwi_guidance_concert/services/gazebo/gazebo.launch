@@ -2,17 +2,17 @@
 
   <!-- launch an empty environment -->
   <param name="/use_sim_time" value="true" />
-  <include file="$(find concert_service_gazebo_segbot)/launch/segbot_empty_world.launch" />
+  <include file="$(find concert_service_segbot_gazebo)/launch/segbot_empty_world.launch" />
 
   <!-- launch an empty world map server -->
   <node name="map_server" type="map_server" pkg="map_server"
-    args="$(find concert_service_gazebo_segbot)/maps/empty_world.yaml">
+    args="$(find concert_service_segbot_gazebo)/maps/empty_world.yaml">
     <remap from="map" to="/map" />
     <remap from="static_map" to="/static_map" />
   </node>
 
   <!-- launch the gazebo robot spawner -->
-  <node pkg="concert_service_gazebo_segbot" type="gazebo_segbot_manager" 
-    name="gazebo_segbot_manager"/>
+  <node pkg="concert_service_segbot_gazebo" type="segbot_gazebo_manager" 
+    name="segbot_gazebo_manager"/>
 
 </launch>

@@ -38,7 +38,7 @@ class ConcertExperimentLauncher:
             req = EnableServiceRequest(name=service, enable=True)
             self.enable_service(req)
 
-        # req = EnableServiceRequest(name='bwi_guidance_concert/gazebo_segbot', enable=True)
+        # req = EnableServiceRequest(name='bwi_guidance_concert/segbot_gazebo', enable=True)
         # req = EnableServiceRequest(name='bwi_guidance_concert/experiment_service', enable=True)
         # # Enable the experiment and gazebo services, sending the correct 
         # # parameters to the experiment service

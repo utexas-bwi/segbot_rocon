@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from concert_service_gazebo_segbot import SegbotManager
+from concert_service_segbot_gazebo import SegbotManager
 
 class GuidanceSegbotManager(SegbotManager):
     def prepare_rocon_launch_text(self, robots):
@@ -10,7 +10,7 @@ class GuidanceSegbotManager(SegbotManager):
             launch_text += '  <launch title="%s:114%s" package="concert_service_gazebo" name="robot.launch" port="114%s">\n' % (name, str(port), str(port))
             launch_text += '    <arg name="robot_name" value="%s"/>\n' % name
             launch_text += '    <arg name="robot_concert_whitelist" value="Gazebo Concert;Concert Tutorial"/>\n'
-            launch_text += '    <arg name="robot_rapp_whitelist" value="[rocon_apps, segbot_rapps, gazebo_segbot_concert]"/>\n'
+            launch_text += '    <arg name="robot_rapp_whitelist" value="[rocon_apps, segbot_rapps, segbot_gazebo_concert]"/>\n'
             launch_text += '  </launch>\n'
             port = port + 1
         launch_text += '</concert>\n'
@@ -29,18 +29,18 @@ class GuidanceSegbotManager(SegbotManager):
 
 if __name__ == '__main__':
 
-    rospy.init_node('gazebo_segbot_manager')
+    rospy.init_node('segbot_gazebo_manager')
     (service_name, unused_service_description, unused_service_id, unused_key) = concert_service_utilities.get_service_info()
     # segbots = rospy.get_param('/services/' + service_name + '/segbots', [])
     segbots = rospy.get_param('segbots', [])
     rospy.loginfo("GazeboSegbotManager: spawning segbots : %s" % segbots)
 
     segbot_manager = SegbotManager('/services/' + service_name + '/')
-    gazebo_segbot_manager = GazeboRobotManager(segbot_manager)
-    gazebo_segbot_manager.spawn_robots(segbots)
+    segbot_gazebo_manager = GazeboRobotManager(segbot_manager)
+    segbot_gazebo_manager.spawn_robots(segbots)
     try:
-        while not rospy.is_shutdown() and not gazebo_segbot_manager.is_disabled:
+        while not rospy.is_shutdown() and not segbot_gazebo_manager.is_disabled:
             rospy.sleep(0.3)
     except rospy.ROSInterruptException:
         pass
-    gazebo_segbot_manager.shutdown()
+    segbot_gazebo_manager.shutdown()
