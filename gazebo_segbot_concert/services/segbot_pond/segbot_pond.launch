@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="gazebo_segbot_concert" name="segbot_pond" type="segbot_pond"/>
-</launch>

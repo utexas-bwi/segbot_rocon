@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+import concert_service_utilities
+import rospy
+
+from concert_service_gazebo import GazeboRobotManager
+from concert_service_segbot_gazebo import SegbotManager
+
+if __name__ == '__main__':
+
+    rospy.init_node('segbot_gazebo_manager')
+    (service_name, unused_service_description, unused_service_id, unused_key) = concert_service_utilities.get_service_info()
+    # segbots = rospy.get_param('/services/' + service_name + '/segbots', [])
+    segbots = rospy.get_param('segbots', [])
+    rospy.loginfo("GazeboSegbotManager: spawning segbots : %s" % segbots)
+
+    segbot_manager = SegbotManager('/services/' + service_name + '/')
+    segbot_gazebo_manager = GazeboRobotManager(segbot_manager)
+    segbot_gazebo_manager.spawn_robots(segbots)
+    try:
+        while not rospy.is_shutdown() and not segbot_gazebo_manager.is_disabled:
+            rospy.sleep(0.3)
+    except rospy.ROSInterruptException:
+        pass
+    segbot_gazebo_manager.shutdown()
