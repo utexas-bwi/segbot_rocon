@@ -11,6 +11,7 @@ project(concert_service_gazebo_segbot)
 
 find_package(catkin REQUIRED)
 catkin_package()
+catkin_python_setup()
 
 ##############################################################################
 # Installs

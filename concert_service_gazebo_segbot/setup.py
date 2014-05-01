@@ -4,7 +4,7 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 d = generate_distutils_setup(
-    packages=['concert_service_gazebo'],
+    packages=['concert_service_gazebo_segbot'],
     package_dir={'': 'src'},
 )
 
