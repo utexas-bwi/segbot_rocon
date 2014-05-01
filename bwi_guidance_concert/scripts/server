@@ -10,9 +10,9 @@ class ConcertExperimentLauncher:
     def __init__(self):
 
         rospy.loginfo("Waiting for the concert service manager...")
-        rospy.wait_for_service('enable_service')
+        rospy.wait_for_service('/concert/services/enable')
         rospy.loginfo("  Found!")
-        self.enable_service = rospy.ServiceProxy('enable_service', EnableService)
+        self.enable_service = rospy.ServiceProxy('/concert/services/enable', EnableService)
 
         # List of current enabled services
         self.services = []
@@ -31,8 +31,8 @@ class ConcertExperimentLauncher:
 
         # Enable the two necessary services
         services = [
-            'bwi_guidance_concert/gazebo'#,
-            #'bwi_guidance_concert/experiment_service'
+            'bwi_guidance_gazebo_service'#,
+            #'bwi_guidance_experiment_service'
         ]
         for service in services:
             req = EnableServiceRequest(name=service, enable=True)
@@ -60,7 +60,7 @@ class ConcertExperimentLauncher:
 if __name__ == '__main__':
     try:
         launcher = ConcertExperimentLauncher()
-        server = ExperimentServer(launcher=launcher)
+        server = ExperimentServer(experiment_launcher=launcher)
         server.start()
     except rospy.ROSInterruptException:
         pass
