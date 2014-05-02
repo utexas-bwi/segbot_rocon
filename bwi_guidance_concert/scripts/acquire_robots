@@ -58,6 +58,7 @@ class RobotAcquirer:
         segbots = rospy.get_param("segbots", default=None)
         number_of_segbots = len(segbots) if segbots is not None else 10
         rospy.loginfo("RobotAcquirer : requesting %s segbots" % number_of_segbots)
+
         for unused_i in range(0, number_of_segbots):
             self.request_segbot()
 
