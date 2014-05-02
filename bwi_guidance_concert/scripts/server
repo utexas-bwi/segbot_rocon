@@ -60,11 +60,10 @@ class ConcertExperimentLauncher:
         use_heuristic_text = 'true' if use_heuristic else 'false'
         rospy.loginfo("  use heuristic: " + use_heuristic_text)
         process = bwi_tools.start_roslaunch_process(
-                self.package, self.script,
-                args={'uid': uid, 'name': name, 'email': email, 
-                      'use_heuristic': use_heuristic_text})
-        # ,
-        #         log=self.log)
+            self.package, self.script,
+            args={'uid': uid, 'name': name, 'email': email, 
+                  'use_heuristic': use_heuristic_text})#,
+            # log=self.log)
         self.processes.append(process)
 
     def stop_experiment(self):
