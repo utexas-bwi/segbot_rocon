@@ -1,0 +1,6 @@
+display: Segbot Video
+description: Allows a service to gain control of a simulated robot's GUI
+compatibility: rocon:/pc
+launch: segbot_gazebo_concert/segbot_video.launch
+public_interface: segbot_gazebo_concert/segbot_video.interface
+icon: segbot_gazebo_concert/segbot_video.png

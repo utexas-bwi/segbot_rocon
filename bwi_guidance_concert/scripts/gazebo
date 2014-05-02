@@ -25,9 +25,7 @@ class GuidanceSegbotManager(SegbotManager):
 
     def get_flip_rule_list(self, name):
         # Needs service proxy for only updating the robot image, movement handled by experiment service directly talking to gazebo service
-        return [Rule(ConnectionType.SUBSCRIBER, '/' + name + '/cmd_vel', None),
-                Rule(ConnectionType.PUBLISHER, '/' + name + '/odom', None),
-                Rule(ConnectionType.PUBLISHER, '/' + name + '/scan_filtered', None),
+        return [Rule(ConnectionType.SUBSCRIBER, '/' + name + '/image', None),
                 Rule(ConnectionType.PUBLISHER, '/clock', None)]
 
 ##############################################################################
@@ -42,7 +40,7 @@ if __name__ == '__main__':
     segbots = rospy.get_param('segbots', [])
     rospy.loginfo("GazeboSegbotManager: spawning segbots : %s" % segbots)
 
-    segbot_manager = SegbotManager('/services/' + service_name + '/')
+    segbot_manager = GuidanceSegbotManager('/services/' + service_name + '/')
     segbot_gazebo_manager = GazeboRobotManager(segbot_manager)
     segbot_gazebo_manager.spawn_robots(segbots)
     try:

@@ -8,5 +8,5 @@
 
 - resource_name: bwi_guidance_concert/gazebo.service
 - resource_name: bwi_guidance_concert/server.service
-- resource_name: bwi_guidance_concert/experiment.service
+#- resource_name: bwi_guidance_concert/experiment.service
 - resource_name: concert_service_admin/admin

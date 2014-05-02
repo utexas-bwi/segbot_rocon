@@ -8,10 +8,20 @@
   <group ns="person">
     <arg name="personid" default="person" />
     <include file="$(find bwi_gazebo_entities)/launch/controllable_person.launch">
-      <arg name="world" value="services/bwi_guidance_gazebo_service/gazebo" />
+      <arg name="world" value="/services/bwi_guidance_server_service/gazebo" />
       <arg name="x" value="1.2" />
       <arg name="y" value="1.2" />
       <arg name="personid" default="$(arg personid)" />
+    </include>
+  </group>
+
+  <group ns="ball">
+    <arg name="ballid" default="ball" />
+    <include file="$(find bwi_gazebo_entities)/launch/ball.launch">
+      <arg name="world" value="/services/bwi_guidance_server_service/gazebo" />
+      <arg name="x" value="600" />
+      <arg name="y" value="600" />
+      <arg name="ballid" default="$(arg ballid)" />
     </include>
   </group>
 

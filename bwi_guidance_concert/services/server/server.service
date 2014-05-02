@@ -3,5 +3,6 @@ description: Launch a web server to interact with the BWI Gazebo experiment
 author: Piyush Khandelwal
 priority: 3
 launcher_type: roslaunch
-launcher: bwi_guidance_concert/server
+launcher: bwi_guidance_concert/server.launch
 icon: bwi_guidance_concert/server.png
+parameters: bwi_guidance_concert/server.parameters 
