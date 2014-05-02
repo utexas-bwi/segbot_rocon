@@ -13,9 +13,11 @@
 
   <run_depend>concert_service_gazebo</run_depend>
   <run_depend>concert_service_segbot_gazebo</run_depend>
+  <run_depend>bwi_guidance_solver</run_depend>
 
   <export>
-    <concert_service>services/segbot_pond/segbot_pond.service</concert_service>
+    <rocon_app>rapps/segbot_video/segbot_video.rapp</rocon_app>
+    <concert_service>services/server/server.service</concert_service>
   </export>
 
 </package>

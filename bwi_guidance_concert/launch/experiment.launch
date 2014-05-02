@@ -13,4 +13,7 @@
     <arg name="use_heuristic" value="$(arg use_heuristic)" />
   </include>
 
+  <!-- launch the node that will acquire the robots -->
+  <node name="acquire_robots" pkg="bwi_guidance_concert" type="acquire_robots" />
+
 </launch>
