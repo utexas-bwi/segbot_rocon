@@ -6,7 +6,7 @@
 
   <include file="$(find bwi_guidance_concert)/services/gazebo/gazebo.launch" />
 
-  <include file="$(find bwi_guidance_solver)/launch/controller.launch">
+  <include file="$(find bwi_guidance_concert)/launch/controller.launch">
     <arg name="uid" value="$(arg uid)"/>
     <arg name="email" value="$(arg email)"/>
     <arg name="name" value="$(arg name)"/>

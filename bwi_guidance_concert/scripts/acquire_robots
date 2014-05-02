@@ -23,6 +23,8 @@ import scheduler_msgs.msg as scheduler_msgs
 import concert_msgs.msg as concert_msgs
 import rocon_uri
 
+from rocon_std_msgs.msg import Remapping
+
 ##############################################################################
 # Classes
 ##############################################################################
@@ -79,6 +81,7 @@ class RobotAcquirer:
         resource.id = unique_id.toMsg(unique_id.fromRandom())
         resource.rapp = 'bwi_guidance_concert/segbot_video'
         resource.uri = 'rocon:/'
+        resource.remappings.append(Remapping('image', 'unused_remapped_image')) #Since we already have it available locally, we'll simply use the local version
         resource_request_id = self.requester.new_request([resource], priority=self.service_priority)
         self.pending_requests.append(resource_request_id)
         self.requester.send_requests()
