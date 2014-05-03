@@ -25,7 +25,7 @@ class GuidanceSegbotManager(SegbotManager):
 
     def get_flip_rule_list(self, name):
         # Needs service proxy for only updating the robot image, movement handled by experiment service directly talking to gazebo service
-        return [Rule(ConnectionType.SUBSCRIBER, '/' + name + '/image', None),
+        return [#Rule(ConnectionType.SUBSCRIBER, '/' + name + '/image', None), # Don't actually flip this, as we'll use this locally
                 Rule(ConnectionType.PUBLISHER, '/clock', None)]
 
 ##############################################################################
