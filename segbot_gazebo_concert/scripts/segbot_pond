@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 #
-# License: BSD
+# Based on the turtle_pond script from the concert_services_turtlesim package,
+# originally authored by Daniel Stonier (d.stonier@gmail.com) and Jihoon
+# Lee(jihoonlee.in@gmail.com).
+#
+# Original License: BSD
 #   https://raw.github.com/robotics-in-concert/concert_services/license/LICENSE
 #
 ##############################################################################
@@ -8,7 +12,6 @@
 ##############################################################################
 
 # Simple script to request a pre-configured number of strolling segbots.
-# This could also be done with link graphs, but chatter concert does that.
 
 ##############################################################################
 # Imports

@@ -2,7 +2,7 @@
 <package>
   <name>segbot_rapps</name>
   <version>0.0.0</version>
-  <description>The segbot_rapps package</description>
+  <description>Common rapps used by Segbots</description>
 
   <license>BSD</license>
 
