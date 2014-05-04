@@ -3,17 +3,43 @@
 
   <name>bwi_guidance_concert</name>
   <version>0.0.0</version>
-  <description>The bwi_guidance_concert package</description>
+  <description>
+    Wraps a Human-Robot Interaction Experiment conducted at the
+    University of Texas At Austin to use the Robotics in Concert Framework. The
+    results from this experiment were reported in the following symposium
+    paper: Piyush Khandelwal and Peter Stone. Multi-robot Human Guidance using
+    Topological Graphs. In AAAI Spring 2014 Symposium on Qualitative
+    Representations for Robots (AAAI-SSS), March 2014. 
+  </description>
 
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
 
   <license>BSD</license>
 
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
+
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>roslaunch</build_depend> <!-- unit test only -->
+
+  <run_depend>bwi_guidance_solver</run_depend>
+  <run_depend>concert_master</run_depend>
+  <run_depend>concert_msgs</run_depend>
+  <run_depend>concert_scheduler_requests</run_depend>
+  <run_depend>concert_service_admin</run_depend>
   <run_depend>concert_service_gazebo</run_depend>
   <run_depend>concert_service_segbot_gazebo</run_depend>
-  <run_depend>bwi_guidance_solver</run_depend>
+  <run_depend>rocon_app_manager</run_depend>
+  <run_depend>rocon_apps</run_depend>
+  <run_depend>rocon_python_comms</run_depend>
+  <run_depend>rocon_python_utils</run_depend>
+  <run_depend>rocon_uri</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>segbot_gazebo_concert</run_depend>
+
+  <!-- Dependencies required for running a concert on Ubuntu -->
+  <run_depend>zeroconf_avahi</run_depend> 
+  <run_depend>zeroconf_msgs</run_depend>
 
   <export>
     <rocon_app>rapps/segbot_video/segbot_video.rapp</rocon_app>
