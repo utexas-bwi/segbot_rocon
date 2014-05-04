@@ -35,7 +35,6 @@
   <run_depend>rocon_python_utils</run_depend>
   <run_depend>rocon_uri</run_depend>
   <run_depend>rospy</run_depend>
-  <run_depend>segbot_gazebo_concert</run_depend>
 
   <!-- Dependencies required for running a concert on Ubuntu -->
   <run_depend>zeroconf_avahi</run_depend> 

@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+#
+# Wrapper around the script used by concert_service_gazebo_segbot to launch
+# robots. Instead of explicitly using concert_service_gazebo service, this
+# package simply includes this script as part of the main service to present a
+# monolithic face to the all the other components in the concert framework. 
+#
+# Different from concert_service_gazebo_segbot, this script uses a different set
+# of flip rules and robot_rapp_whitelist
 
 import concert_service_utilities
 import rospy
@@ -11,22 +19,36 @@ from gateway_msgs.msg import ConnectionType, Rule
 class GuidanceSegbotManager(SegbotManager):
 
     def prepare_rocon_launch_text(self, robots):
+        '''
+          Launch a concert for every robot
+        '''
         port = 11
         launch_text = '<concert>\n'
         for name in robots:
             launch_text += '  <launch title="%s:114%s" package="concert_service_gazebo" name="robot.launch" port="114%s">\n' % (name, str(port), str(port))
             launch_text += '    <arg name="robot_name" value="%s"/>\n' % name
             launch_text += '    <arg name="robot_concert_whitelist" value="BWI Guidance Concert;Gazebo Concert;Concert Tutorial"/>\n'
-            launch_text += '    <arg name="robot_rapp_whitelist" value="[rocon_apps, segbot_rapps, segbot_gazebo_concert, bwi_guidance_concert]"/>\n'
+            launch_text += '    <arg name="robot_rapp_whitelist" value="[rocon_apps, segbot_rapps, bwi_guidance_concert]"/>\n'
             launch_text += '  </launch>\n'
             port = port + 1
         launch_text += '</concert>\n'
         return launch_text
 
     def get_flip_rule_list(self, name):
-        # Needs service proxy for only updating the robot image, movement handled by experiment service directly talking to gazebo service
-        return [#Rule(ConnectionType.SUBSCRIBER, '/' + name + '/image', None), # Don't actually flip this, as we'll use this locally
-                Rule(ConnectionType.PUBLISHER, '/clock', None)]
+        '''
+          The purpose of this instance is to flip the image topic to 
+          the robot's concert so that it can be used by whichever service as
+          necessary.
+
+          Unfortunately, subscriber's only work with one master at a time
+          https://github.com/robotics-in-concert/rocon_multimaster/issues/127,
+          which can be problematic for flipping subscriber. For this reason, we
+          will not be flipping the image topic across, and instead use it
+          locally
+        '''
+        return [
+            #Rule(ConnectionType.SUBSCRIBER, '/' + name + '/image', None), # Don't flip, as use locally
+            Rule(ConnectionType.PUBLISHER, '/clock', None)]
 
 ##############################################################################
 # Launch point

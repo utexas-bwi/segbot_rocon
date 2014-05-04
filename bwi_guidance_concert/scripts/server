@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+#
+# Experiment launcher responsible for spawning processes and concert services
+# to run an experiment for a given user
 
 import bwi_tools
 import roslib
