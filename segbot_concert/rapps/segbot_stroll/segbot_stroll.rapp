@@ -1,6 +1,0 @@
-display: Segbot Stroll
-description: The turtle strolls around in the environment in a square.
-compatibility: rocon:/pc
-launch: segbot_gazebo_concert/segbot_stroll.launch
-public_interface: segbot_gazebo_concert/segbot_stroll.interface
-icon: segbot_gazebo_concert/segbot_stroll.png

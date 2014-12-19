@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>segbot_gazebo_concert</name>
+	<name>segbot_demo_concert</name>
 	<comment></comment>
 	<projects>
 		<project>concert_scheduler_requests</project>

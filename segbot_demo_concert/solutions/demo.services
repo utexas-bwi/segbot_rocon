@@ -1,0 +1,3 @@
+#- resource_name: concert_service_segbot_gazebo/segbot
+- resource_name: segbot_demo_concert/segbot_demo_controller
+- resource_name: concert_service_admin/admin

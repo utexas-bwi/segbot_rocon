@@ -3,7 +3,7 @@
 ##############################################################################
 
 cmake_minimum_required(VERSION 2.8.3)
-project(segbot_gazebo_concert)
+project(segbot_demo_concert)
 
 ##############################################################################
 # Catkin
@@ -19,11 +19,10 @@ catkin_package()
 install(
   PROGRAMS 
     scripts/segbot_pond
-    scripts/segbot_stroll
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-foreach(dir concert rapps services solutions)
+foreach(dir concert services solutions)
   install(DIRECTORY ${dir}
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 endforeach()
