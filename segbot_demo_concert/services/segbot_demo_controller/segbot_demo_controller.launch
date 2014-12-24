@@ -1,3 +1,3 @@
 <launch>
-  <node pkg="segbot_demo_concert" name="segbot_pond" type="segbot_pond"/>
+  <node pkg="segbot_demo_concert" name="segbot_demo_controller" type="segbot_demo_controller"/>
 </launch>

@@ -38,7 +38,7 @@
   <run_depend>zeroconf_msgs</run_depend>
 
   <export>
-    <concert_service>services/segbot_pond/segbot_pond.service</concert_service>
+    <concert_service>services/segbot_demo_controller/segbot_demo_controller.service</concert_service>
   </export>
 
 </package>
