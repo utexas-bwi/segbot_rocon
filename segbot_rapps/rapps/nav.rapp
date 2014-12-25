@@ -1,6 +1,6 @@
 display:           Segbot Navigation
 description:       Drive a segbot around a pre-made map.
 compatibility:     rocon:/
-launch:            simulated_segbot_nav.launch
-public_interface:  simulated_segbot_nav.interface
+launch:            nav.launch
+public_interface:  nav.interface
 icon:              placeholder_icon.png

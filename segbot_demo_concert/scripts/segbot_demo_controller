@@ -78,7 +78,7 @@ class SegbotPond:
         '''
         resource = scheduler_msgs.Resource()
         resource.id = unique_id.toMsg(unique_id.fromRandom())
-        resource.rapp = 'segbot_rapps/simulated_nav'
+        resource.rapp = 'segbot_rapps/simulated_segbot_nav'
         resource.uri = 'rocon:/'
         resource_request_id = self.requester.new_request([resource], priority=self.service_priority)
         self.pending_requests.append(resource_request_id)
@@ -126,8 +126,8 @@ class SegbotPond:
 
 if __name__ == '__main__':
 
-    rospy.init_node('segbot_pond')
-    segbot_pond = SegbotPond()
+    rospy.init_node('segbot_demo_controller')
+    segbot_demo_controller = SegbotPond()
     rospy.spin()
     if not rospy.is_shutdown():
-        segbot_pond.cancel_all_requests()
+        segbot_demo_controller.cancel_all_requests()

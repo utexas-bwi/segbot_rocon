@@ -18,7 +18,7 @@ catkin_package()
 
 install(
   PROGRAMS 
-    scripts/segbot_pond
+    scripts/segbot_demo_controller
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

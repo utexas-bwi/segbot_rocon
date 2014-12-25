@@ -32,12 +32,14 @@
   <run_depend>rocon_python_utils</run_depend>
   <run_depend>rocon_uri</run_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>utexas_gdc</run_depend>
 
   <!-- Dependencies required for running a concert on Ubuntu -->
   <run_depend>zeroconf_avahi</run_depend> 
   <run_depend>zeroconf_msgs</run_depend>
 
   <export>
+    <concert_service>services/gazebo/gazebo.service</concert_service>
     <concert_service>services/segbot_demo_controller/segbot_demo_controller.service</concert_service>
   </export>
 
