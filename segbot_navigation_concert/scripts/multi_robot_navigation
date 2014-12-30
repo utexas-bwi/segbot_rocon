@@ -24,6 +24,7 @@ import concert_scheduler_requests
 import unique_id
 import scheduler_msgs.msg as scheduler_msgs
 import concert_msgs.msg as concert_msgs
+from segbot_navigation_concert.msg import AvailableRobotArray
 import rocon_uri
 
 ##############################################################################
@@ -43,7 +44,9 @@ class MultiRobotNavigation:
         'service_id',
         'requester',
         'pending_requests',   # [uuid.UUID] list of request id's pending feedback from the scheduler
-        'allocated_requests'  # [uuid.UUID] moved here from pending requests once granted
+        'allocated_requests',  # [uuid.UUID] moved here from pending requests once granted
+        'allocated_resources',
+        'status_publisher'
     ]
 
     def __init__(self):
@@ -58,7 +61,9 @@ class MultiRobotNavigation:
         self.requester = self.setup_requester(self.service_id)
         self.pending_requests = []
         self.allocated_requests = []
-        number_of_segbots = rospy.get_param("segbots", default=1)
+        self.allocated_resources = []
+        self.status_publisher = rospy.Publisher('available_robots', AvailableRobotArray, latch=True)
+        number_of_segbots = rospy.get_param("robots", default=10)
         rospy.loginfo("MultiRobotNavigation : requesting %s segbots" % number_of_segbots)
         for unused_i in range(0, number_of_segbots):
             self.request_segbot()
@@ -99,6 +104,9 @@ class MultiRobotNavigation:
                 if request.msg.status == scheduler_msgs.Request.GRANTED:
                     self.pending_requests.remove(request_id)
                     self.allocated_requests.append(request_id)
+                    # TODO doesn't handle the case when an allocated resource gets preempted.
+                    self.allocated_resources.append(str(request.msg.resources[0].uri))
+                    self.status_publisher.publish(self.allocated_resources)
             elif request.msg.status == scheduler_msgs.Request.GRANTED:
                 completely_unallocated = True
                 for resource in request.msg.resources:
@@ -128,9 +136,6 @@ if __name__ == '__main__':
 
     rospy.init_node('multi_robot_navigation')
     multi_robot_navigation = MultiRobotNavigation()
-    r = rospy.Rate(1)
-    while True:
-        multi_robot_navigation.push_back
-        r.sleep()
+    rospy.spin()
     if not rospy.is_shutdown():
         multi_robot_navigation.cancel_all_requests()

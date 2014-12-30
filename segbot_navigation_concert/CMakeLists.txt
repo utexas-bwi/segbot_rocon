@@ -9,9 +9,24 @@ project(segbot_navigation_concert)
 # Catkin
 ##############################################################################
 
-find_package(catkin REQUIRED)
-catkin_package()
+find_package(catkin REQUIRED COMPONENTS
+  std_msgs
+  message_generation
+)
 
+add_message_files(
+  FILES
+  AvailableRobotArray.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
+catkin_package(
+  CATKIN_DEPENDS message_runtime
+)
 ##############################################################################
 # Installs
 ##############################################################################
