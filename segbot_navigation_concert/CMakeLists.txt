@@ -3,7 +3,7 @@
 ##############################################################################
 
 cmake_minimum_required(VERSION 2.8.3)
-project(segbot_demo_concert)
+project(segbot_navigation_concert)
 
 ##############################################################################
 # Catkin
@@ -18,7 +18,7 @@ catkin_package()
 
 install(
   PROGRAMS 
-    scripts/segbot_demo_controller
+    scripts/multi_robot_navigation
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

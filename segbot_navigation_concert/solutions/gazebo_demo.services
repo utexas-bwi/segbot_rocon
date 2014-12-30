@@ -1,0 +1,3 @@
+- resource_name: segbot_navigation_concert/gazebo.service
+- resource_name: segbot_navigation_concert/multi_robot_navigation.service
+- resource_name: concert_service_admin/admin

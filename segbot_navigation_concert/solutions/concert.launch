@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="demo_services" default="segbot_demo_concert/demo.services"/>
+  <arg name="demo_services" default="segbot_navigation_concert/demo.services"/>
   <arg name="concert_name" default="BWI Concert"/>
   <arg name="scheduler_type" default="compatibility_tree"/>
 

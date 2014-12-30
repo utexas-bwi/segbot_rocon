@@ -2,7 +2,7 @@
 # Interactions
 ###############################################################################
 
-- name: http://wiki.ros.org/segbot_demo_concert
+- name: http://wiki.ros.org/segbot_navigation_concert
   role: 'Docs'
   compatibility: rocon:/
   display_name: Ros Wiki - Turtle Concert

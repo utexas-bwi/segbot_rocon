@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="segbot_demo_concert" name="segbot_demo_controller" type="segbot_demo_controller"/>
-</launch>
