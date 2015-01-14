@@ -2,7 +2,7 @@
 
   <!-- launch an empty environment -->
   <param name="/use_sim_time" value="true" />
-  <include file="$(find utexas_gdc)/launch/3ne.launch" />
+  <include file="$(find utexas_gdc)/launch/simulation_3ne.launch" />
 
   <!-- launch an empty world map server -->
   <node name="map_server" type="map_server" pkg="map_server"
