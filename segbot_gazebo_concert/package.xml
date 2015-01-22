@@ -40,6 +40,7 @@
   <export>
     <rocon_app>rapps/segbot_stroll/segbot_stroll.rapp</rocon_app>
     <concert_service>services/segbot_pond/segbot_pond.service</concert_service>
+    <concert_service>services/segbot_gazebo/segbot_gazebo.service</concert_service>
   </export>
 
 </package>

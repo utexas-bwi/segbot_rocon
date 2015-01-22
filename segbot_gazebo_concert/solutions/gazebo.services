@@ -6,6 +6,6 @@
 #  overrides:
 #    priority: 1000
 
-- resource_name: concert_service_segbot_gazebo/segbot
+- resource_name: segbot_gazebo_concert/segbot_gazebo
 - resource_name: segbot_gazebo_concert/segbot_pond
 - resource_name: concert_service_admin/admin

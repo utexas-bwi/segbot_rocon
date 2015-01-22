@@ -6,11 +6,14 @@ publishers:
   - /tf_changes
   - /map
   - amcl_pose
+  - move_base/EBandPlannerROS/global_plan
 subscribers: 
   - initialpose
   - move_base_simple/goal
 services:
   - /static_map
+  - move_base_interruptable/pause
+  - move_base_interruptable/resume
 action_clients: []
 action_servers: 
-  - move_base
+  - move_base_interruptable
