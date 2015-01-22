@@ -13,12 +13,12 @@
   <param name="tf_prefix" value="$(arg tf_prefix)" />
 
   <!-- TODO change this multimap file -->
-  <arg name="multimap_file" default="$(find utexas_gdc)/maps/simulation/multimap/test.yaml" />
+  <arg name="multimap_file" default="$(find segbot_gazebo_concert)/maps/multimap.yaml" />
   <arg name="map_frame" default="level_mux/map" />
   <arg name="map_frame_with_prefix" default="$(arg tf_prefix)/level_mux/map" />
   <arg name="map_service" default="level_mux/static_map" />
   <arg name="map_topic" default="level_mux/map" />
-  <arg name="navigation_map_topic" default="segbot_logical_translator/map" />
+  <arg name="navigation_map_topic" default="segbot_logical_navigator/map" />
   <arg name="base_frame_id" default="$(arg tf_prefix)/base_footprint" />
   <arg name="odom_frame_id" default="$(arg tf_prefix)/odom" />
 
@@ -61,8 +61,8 @@
 
   <!-- TODO should not have to supply default parameters unless necessary -->
   <node name="segbot_logical_navigator" pkg="segbot_logical_translator" type="segbot_logical_navigator">
-    <param name="data_directory" value="$(find utexas_gdc)/maps/simulation/3ne" />
-    <param name="map_file" value="$(find utexas_gdc)/maps/simulation/3ne/3ne.yaml" />
+    <param name="data_directory" value="$(find segbot_gazebo_concert)/maps/empty_world" />
+    <param name="map_file" value="$(find segbot_gazebo_concert)/maps/empty_world/empty_world.yaml" />
     <param name="global_frame_id" value="$(arg map_frame_with_prefix)" />
     <remap from="move_base" to="move_base_interruptable" />
   </node>
