@@ -45,7 +45,7 @@
   <run_depend>zeroconf_msgs</run_depend>
 
   <export>
-    <concert_service>services/gazebo/gazebo.service</concert_service>
+    <concert_service>services/segbot_gazebo/segbot_gazebo.service</concert_service>
     <concert_service>services/multi_robot_navigation/multi_robot_navigation.service</concert_service>
   </export>
 

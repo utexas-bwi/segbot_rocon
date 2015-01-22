@@ -18,6 +18,7 @@
   <export>
     <rocon_app>rapps/nav.rapp</rocon_app>
     <rocon_app>rapps/simulated_segbot_nav.rapp</rocon_app>
+    <rocon_app>rapps/simulated_segbot_nav_3ne.rapp</rocon_app>
   </export>
 
 </package>

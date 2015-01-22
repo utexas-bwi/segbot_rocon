@@ -1,0 +1,70 @@
+<!--
+  Right now, the android app is hard coded to look for /cmd_vel as the input
+  topic.
+ -->
+<launch>
+
+  <!-- We're current using application namespace to launch each robot with a different namespace. This way, when
+       we pull in the topics/frame_ids, they won't collide. -->
+  <arg name="gateway_name" default="" />
+  <arg name="tf_prefix" default="$(arg gateway_name)" />
+
+  <!-- costmap2d still uses tf_prefix, not sure about other nodes. -->
+  <param name="tf_prefix" value="$(arg tf_prefix)" />
+
+  <!-- TODO change this multimap file -->
+  <arg name="multimap_file" default="$(find utexas_gdc)/maps/simulation/multimap/test.yaml" />
+  <arg name="map_frame" default="level_mux/map" />
+  <arg name="map_frame_with_prefix" default="$(arg tf_prefix)/level_mux/map" />
+  <arg name="map_service" default="level_mux/static_map" />
+  <arg name="map_topic" default="level_mux/map" />
+  <arg name="navigation_map_topic" default="segbot_logical_navigator/map" />
+  <arg name="base_frame_id" default="$(arg tf_prefix)/base_footprint" />
+  <arg name="odom_frame_id" default="$(arg tf_prefix)/odom" />
+
+  <!-- TODO this multimap should be provided by the server, and not in the application -->
+  <!-- launch the multi map server for the simulated world --> 
+  <node name="multi_level_map_server" pkg="multi_level_map_server" type="multi_level_map_server">                        
+    <rosparam command="load" file="$(arg multimap_file)" />               
+  </node>
+
+  <!-- also launch the level multiplexer and the level selector -->
+  <node name="level_mux" pkg="multi_level_map_utils" type="level_mux">                                                 
+    <param name="global_frame_id" value="$(arg map_frame_with_prefix)" />
+  </node>
+
+  <node name="level_selector" pkg="multi_level_map_utils" type="level_selector" />
+
+  <!-- localization -->
+  <include file="$(find segbot_navigation)/launch/amcl.launch">
+    <arg name="map_service" value="$(arg map_service)" />
+    <arg name="map_topic" value="$(arg map_topic)" />
+    <arg name="map_frame_id" value="$(arg map_frame_with_prefix)" />
+    <arg name="base_frame_id" value="$(arg base_frame_id)" />
+    <arg name="odom_frame_id" value="$(arg odom_frame_id)" />
+    <arg name="odom_alpha1" value="0.05" />
+    <arg name="odom_alpha2" value="0.05" />
+    <arg name="odom_alpha3" value="0.05" />
+    <arg name="odom_alpha4" value="0.05" />
+    <arg name="odom_alpha5" value="0.05" />
+  </include>
+
+  <!-- interruptable navigation-->
+  <node name="move_base_interruptable" pkg="segbot_apps" type="move_base_interruptable_server" />
+  <include file="$(find segbot_navigation)/launch/move_base_eband.launch">
+    <arg name="global_frame" value="$(arg map_frame)" />
+    <arg name="move_base_server" value="move_base_interruptable" />
+    <arg name="map_topic" value="$(arg navigation_map_topic)" />
+    <arg name="eband_rotational_threshold_multiplier" value="1.5" />
+    <arg name="eband_disallow_hysteresis" value="true" />
+  </include>
+
+  <!-- TODO should not have to supply default parameters unless necessary -->
+  <node name="segbot_logical_navigator" pkg="segbot_logical_translator" type="segbot_logical_navigator">
+    <param name="data_directory" value="$(find utexas_gdc)/maps/simulation/3ne" />
+    <param name="map_file" value="$(find utexas_gdc)/maps/simulation/3ne/3ne.yaml" />
+    <param name="global_frame_id" value="$(arg map_frame_with_prefix)" />
+    <remap from="move_base" to="move_base_interruptable" />
+  </node>
+
+</launch>
