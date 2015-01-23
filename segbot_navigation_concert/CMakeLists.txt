@@ -14,8 +14,11 @@ find_package(catkin REQUIRED COMPONENTS
   bwi_mapper
   message_generation
   geometry_msgs
+  move_base_msgs
+  multi_level_map_msgs
   nav_msgs
   std_msgs
+  std_srvs
 )
 find_package(Boost REQUIRED)
 
@@ -30,7 +33,16 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS actionlib bwi_mapper message_runtime geometry_msgs nav_msgs std_msgs
+  CATKIN_DEPENDS 
+    actionlib 
+    bwi_mapper
+    geometry_msgs
+    message_runtime
+    move_base_msgs
+    multi_level_map_msgs
+    nav_msgs
+    std_msgs
+    std_srvs
 )
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})

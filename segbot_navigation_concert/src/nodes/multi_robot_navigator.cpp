@@ -13,16 +13,21 @@
 
 #include <actionlib/client/simple_action_client.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
 #include <bwi_mapper/map_inflator.h>
 #include <bwi_mapper/map_loader.h>
 #include <bwi_mapper/map_utils.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <move_base_msgs/MoveBaseAction.h>
+#include <multi_level_map_msgs/MultiLevelMapData.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/Path.h>
 #include <ros/ros.h>
 #include <segbot_navigation_concert/AvailableRobotArray.h>
+#include <std_srvs/Empty.h>
 
-struct RobotStatus {
+enum RobotStatus {
   NORMAL,
   HEADING_TO_BYPASS_POINT,
   WAITING_AT_BYPASS_POINT,
@@ -45,19 +50,19 @@ class MultiRobotNavigator {
     ros::Subscriber multimap_subscriber_;
     bool multimap_available_;
 
-    void availableRobotArrayHandler(const segbot_navigationConcert::AvailableRobotArray::ConstPtr& robots);
-    rso::Subscriber available_robots_subscriber_;
+    void availableRobotArrayHandler(const segbot_navigation_concert::AvailableRobotArray::ConstPtr& robots);
+    ros::Subscriber available_robots_subscriber_;
     std::set<std::string> available_robots_;
 
     // TODO Assumes a single floor for now.
     nav_msgs::OccupancyGrid original_map_;
     nav_msgs::OccupancyGrid inflated_map_;
 
-    std::map<std::string, RobotStatus> current_robot_status_;
-    void robotLocationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& pose, const std::string& robot_name);
+    std::map<std::string, RobotStatus> robot_status_;
+    void robotLocationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& pose, std::string robot_name);
     std::map<std::string, ros::Subscriber> robot_locations_sub_;
     std::map<std::string, geometry_msgs::PoseStamped> robot_locations_;
-    void robotPathHandler(const nav_msgs::Path::ConstPtr& path, const std::string& robot_name);
+    void robotPathHandler(const nav_msgs::Path::ConstPtr& path, std::string robot_name);
     std::map<std::string, ros::Subscriber> robot_path_sub_;
     std::map<std::string, nav_msgs::Path> global_plan_;
     std::map<std::string, nav_msgs::OccupancyGrid> expanded_plan_;
@@ -67,11 +72,21 @@ class MultiRobotNavigator {
 
     float inflation_radius_;
 
-    std::set<std::pair<int, int> > intercepted_robots_;
-    std::set<std::pair<int, int> > min_bypass_distance_;
+    std::map<int, int> intercepted_robots_;
+    std::map<int, float> min_bypass_distance_;
 
     /* Some helper functions. */
+    void pauseRobot(const std::string& robot_name, 
+                    RobotStatus post_success_status = WAITING_FOR_OTHER_ROBOT);
+
+    void resumeRobot(const std::string& robot_name);
+
+    void sendNavigationGoal(const std::string& robot_name, 
+                            const geometry_msgs::PoseStamped& pose,
+                            RobotStatus post_send_status = NORMAL);
+    bool hasNavigationActionCompleted(const std::string& robot_name);
     void expandPlan(const nav_msgs::Path& plan, nav_msgs::OccupancyGrid& expanded_plan);
+    bool plansOverlap(const nav_msgs::OccupancyGrid& p1, const nav_msgs::OccupancyGrid& p2);
     float getDistance(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2);
     geometry_msgs::PoseStamped calculateBypassPoint(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2);
 
@@ -79,7 +94,7 @@ class MultiRobotNavigator {
 
 MultiRobotNavigator::MultiRobotNavigator() : multimap_available_(false) {
 
-  ros::param::param("~inflation_radius", inflation_radius_, 0.3);
+  ros::param::param("~inflation_radius", inflation_radius_, 0.3f);
 
   // Make sure you publish the default map at least once so that navigation can start up! Ensure this pub is latched.
   ros::NodeHandle nh;
@@ -102,21 +117,21 @@ void MultiRobotNavigator::multimapHandler(const multi_level_map_msgs::MultiLevel
 
 }
 
-void MultiRobotNavigator::robotLocationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& pose, const std::string& robot_name) {
+void MultiRobotNavigator::robotLocationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& pose, std::string robot_name) {
   geometry_msgs::PoseStamped pose_only;
   pose_only.header = pose->header;
   pose_only.pose = pose->pose.pose;
   robot_locations_[robot_name] = pose_only;
 }
 
-void MultirRobotNavigator::expandPlan(const nav_msgs::Path& plan, nav_msgs::OccupancyGrid& expanded_plan) {
+void MultiRobotNavigator::expandPlan(const nav_msgs::Path& plan, nav_msgs::OccupancyGrid& expanded_plan) {
 
   // Create an opencv image and draw circles with the inflation radius using the plan.
   cv::Mat temp(original_map_.info.width, original_map_.info.height, CV_8UC1, cv::Scalar(100));
 
-  BOOST_FOREACH(const nav_msgs::PoseStamped& pose, plan.poses) {
-    bwi::Point2f real_world_point(pose.position.x, pose.position.y);
-    bwi::Point2f grid_pos = bwi_mapper::toGrid(real_world_point, original_map_.info);
+  BOOST_FOREACH(const geometry_msgs::PoseStamped& pose, plan.poses) {
+    bwi_mapper::Point2f real_world_point(pose.pose.position.x, pose.pose.position.y);
+    bwi_mapper::Point2f grid_pos = bwi_mapper::toGrid(real_world_point, original_map_.info);
     int grid_radius = inflation_radius_ / original_map_.info.resolution;
     cv::circle(temp, grid_pos, grid_radius, cv::Scalar(0));
   }
@@ -136,22 +151,32 @@ void MultirRobotNavigator::expandPlan(const nav_msgs::Path& plan, nav_msgs::Occu
   }
 }
 
-void MultiRobotNavigator::robotPathHandler(const nav_msgs::Path::ConstPtr& path, const std::string& robot_name) {
+bool MultiRobotNavigator::plansOverlap(const nav_msgs::OccupancyGrid& p1, const nav_msgs::OccupancyGrid& p2) {
+  // TODO could do a counter here instead of returning on a single pixel overlap.
+  for (int val = 0; val < p1.data.size(); ++val) {
+    if (p1.data[val] == 0 && p2.data[val] == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void MultiRobotNavigator::robotPathHandler(const nav_msgs::Path::ConstPtr& path, std::string robot_name) {
   global_plan_[robot_name] = *path;
   expandPlan(global_plan_[robot_name], expanded_plan_[robot_name]);
 }
 
-void MultiRobotNavigator::availableRobotArrayHandler(const segbot_navigationConcert::AvailableRobotArray::ConstPtr& robots) {
+void MultiRobotNavigator::availableRobotArrayHandler(const segbot_navigation_concert::AvailableRobotArray::ConstPtr& robots) {
   BOOST_FOREACH(const std::string resource_str, robots->robot_name) {
     std::vector<std::string> results;
-    boost::split(resource_str, results, boost::is_any_of("/"));
+    boost::split(results, resource_str, boost::is_any_of("/"));
     std::string robot_name = results[2];
-    available_robots_.add(robot_name);
+    available_robots_.insert(robot_name);
   }
 }
 
 void MultiRobotNavigator::pauseRobot(const std::string& robot_name, 
-                                     RobotStatus post_success_status = WAITING_FOR_OTHER_ROBOT) {
+                                     RobotStatus post_success_status) {
   std_srvs::Empty empty_srv;
   if (robot_pauser_[robot_name].call(empty_srv)) {
     robot_status_[robot_name] = post_success_status;
@@ -169,21 +194,21 @@ void MultiRobotNavigator::resumeRobot(const std::string& robot_name) {
   }
 }
 
-void MultiRobotNavigator::sendNavigationGoal(const std:string& robot_name, 
+void MultiRobotNavigator::sendNavigationGoal(const std::string& robot_name, 
                                              const geometry_msgs::PoseStamped& pose,
-                                             RobotStatus post_send_status = NORMAL) {
+                                             RobotStatus post_send_status) {
   move_base_msgs::MoveBaseGoal goal;
   goal.target_pose = pose;
   robot_controller_[robot_name]->sendGoal(goal);
   robot_status_[robot_name] = post_send_status;
 }
 
-void MultiRobotNavigator::hasNavigationActionCompleted(const std::string& robot_name) {
-  SimpleClientGoalState state = robot_controller_->getState();
-  return state != SimpleClientGoalState::PENDING && state != SimpleClientGoalState::ACTIVE;
+bool MultiRobotNavigator::hasNavigationActionCompleted(const std::string& robot_name) {
+  actionlib::SimpleClientGoalState state = robot_controller_[robot_name]->getState();
+  return state != actionlib::SimpleClientGoalState::PENDING && state != actionlib::SimpleClientGoalState::ACTIVE;
 }
 
-void MultiRobotNavigator::getDistance(const geometry_msgs::PoseStamped& p1, 
+float MultiRobotNavigator::getDistance(const geometry_msgs::PoseStamped& p1, 
                                       const geometry_msgs::PoseStamped& p2) {
   float xdiff = p1.pose.position.x - p2.pose.position.x;
   float ydiff = p1.pose.position.y - p2.pose.position.y;
@@ -205,8 +230,8 @@ geometry_msgs::PoseStamped MultiRobotNavigator::calculateBypassPoint(const geome
   while (counter < padding + 2 * inflation_radius_) {
     float xloc = p1.pose.position.x + counter * cosf(angle_right); 
     float yloc = p1.pose.position.y + counter * sinf(angle_right); 
-    bwi::Point2f real_world_point(xloc, yloc);
-    bwi::Point2f grid_pos = bwi_mapper::toGrid(real_world_point, original_map_.info);
+    bwi_mapper::Point2f real_world_point(xloc, yloc);
+    bwi_mapper::Point2f grid_pos = bwi_mapper::toGrid(real_world_point, original_map_.info);
     long map_idx = MAP_IDX(original_map_.info.width, grid_pos.x, grid_pos.y);
     if (inflated_map_.data[map_idx] == 0) {
       break;
@@ -224,13 +249,13 @@ void MultiRobotNavigator::spin() {
 
     // Create controllers for each robot.
     BOOST_FOREACH(const std::string robot, available_robots_) {
-      if (current_robot_status_.find(robot) == current_robot_status_.end()) {
+      if (robot_status_.find(robot) == robot_status_.end()) {
         // Setup all the subcribers
         ros::NodeHandle nh("/");
-        robot_locations_sub_[robot] = nh.subscribe(robot + "/amcl_pose", 1,
+        robot_locations_sub_[robot] = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(robot + "/amcl_pose", 1,
                                                    boost::bind(&MultiRobotNavigator::robotLocationHandler, this, _1,
                                                                robot)); 
-        robot_path_sub_[robot] = nh.subscribe(robot + "/move_base/EBandPlannerROS/global_plan", 1,
+        robot_path_sub_[robot] = nh.subscribe<nav_msgs::Path>(robot + "/move_base/EBandPlannerROS/global_plan", 1,
                                               boost::bind(&MultiRobotNavigator::robotPathHandler, this, _1, robot)); 
         // The robot controllers
         robot_controller_[robot] = RobotControllerPtr(new RobotController("/" + robot + "/move_base_interruptable", true)); 
@@ -247,10 +272,10 @@ void MultiRobotNavigator::spin() {
       for (int i = 0; i < available_robots_vector.size(); ++i) {
         const std::string& ri = available_robots_vector[i];
         // Check for any new collisions.
-        if (robot_status_[i] == NORMAL) {
+        if (robot_status_[ri] == NORMAL) {
           for (int j = i + 1; j < available_robots_vector.size(); ++j) {
             const std::string& rj = available_robots_vector[j];
-            if (robot_status_[j] == NORMAL) { 
+            if (robot_status_[rj] == NORMAL) { 
               // Compare the expanded plans for any collision.
               if (plansOverlap(expanded_plan_[ri], expanded_plan_[rj])) {
 
@@ -259,8 +284,8 @@ void MultiRobotNavigator::spin() {
                 pauseRobot(rj);
 
                 // See which robot can be moved the most on the perpendicular.
-                geometry_msgs::PoseStamped bypassi = calculateBypassPoint(ri, rj);
-                geometry_msgs::PoseStamped bypassj = calculateBypassPoint(rj, ri);
+                geometry_msgs::PoseStamped bypassi = calculateBypassPoint(robot_locations_[ri], robot_locations_[rj]);
+                geometry_msgs::PoseStamped bypassj = calculateBypassPoint(robot_locations_[rj], robot_locations_[ri]);
 
                 float bypassdistancei = getDistance(robot_locations_[ri], bypassi);
                 float bypassdistancej = getDistance(robot_locations_[rj], bypassj);
