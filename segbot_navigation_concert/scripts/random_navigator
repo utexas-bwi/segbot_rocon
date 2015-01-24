@@ -9,65 +9,70 @@ from geometry_msgs.msg import Quaternion
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from segbot_navigation_concert.msg import AvailableRobotArray
 
-# TODO read from service parameters
-points = [(0, 8, 0), (0, 16, 0)]
-available_robots = []
-global_start_counter = 0
-global_forward = True
+class MultiRobotPatroller(object):
 
-def navigate_robot(robot_name, start_counter, forward):
+    def __init__(self):
 
-    client = actionlib.SimpleActionClient('/' + robot_name + '/move_base_interruptable', MoveBaseAction)
-    resolved_frame = '/' + robot_name + '/level_mux/map'
+        # TODO read from service parameters
+        self.points = [(0, 8, 0), (0, 16, 0)]
+        self.available_robots = []
+        self.global_start_counter = 0
+        self.global_forward = True
 
-    # Waits until the action server has started up and started
-    # listening for goals.
-    while not rospy.is_shutdown():
-        if client.wait_for_server(rospy.Duration(1)):
-            break
+        rospy.Subscriber("available_robots", AvailableRobotArray, self.available_robot_callback)
+        rospy.spin()
 
-    counter = start_counter
-    while not rospy.is_shutdown():
-        # Creates a goal to send to the action server.
-        goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = resolved_frame
-        goal.target_pose.header.stamp = rospy.get_rostime()
-        goal.target_pose.pose.position.x = points[counter][0]
-        goal.target_pose.pose.position.y = points[counter][1]
-        goal.target_pose.pose.position.z = 0.0
-        q = tf.transformations.quaternion_from_euler(0, 0, points[counter][2])
-        goal.target_pose.pose.orientation = Quaternion(*q)
+    def available_robot_callback(self, msg):
+        for robot_resource in msg.robot_name:
+            results = robot_resource.split('/')
+            robot_name = results[2]
+            if robot_name not in self.available_robots:
+                self.available_robots.append(robot_name)
+                thread.start_new_thread(self.navigate_robot, (robot_name, self.global_start_counter,
+                                                              self.global_forward))
+                self.global_forward = not self.global_forward
+                self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
 
-        # Sends the goal to the action server.
-        client.send_goal(goal)
+    def navigate_robot(self, robot_name, start_counter, forward):
 
-        # Waits for the server to finish performing the action.
+        client = actionlib.SimpleActionClient('/' + robot_name + '/move_base_interruptable', MoveBaseAction)
+        resolved_frame = '/' + robot_name + '/level_mux/map'
+
+        # Waits until the action server has started up and started
+        # listening for goals.
         while not rospy.is_shutdown():
-            if client.wait_for_result(rospy.Duration(1)):
+            if client.wait_for_server(rospy.Duration(1)):
                 break
-        if forward:
-            counter = (counter + 1) % len(points)
-        else:
-            counter = counter - 1
-            if counter < 0:
-                counter = len(points) - 1
 
-def available_robot_callback(msg):
-    for robot_resource in msg.robot_names:
-        results = robot_resource.split('/')
-        robot_name = results[2]
-        if robot_name not in available_robots:
-            available_robots.append(robot_name)
-            thread.start_new_thread(robot_name, global_start_counter, global_forward)
-            global_forward = not global_forward
-            global_start_counter = (global_start_counter + 1) % len(points)
+        counter = start_counter
+        while not rospy.is_shutdown():
+            # Creates a goal to send to the action server.
+            goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = resolved_frame
+            goal.target_pose.header.stamp = rospy.get_rostime()
+            goal.target_pose.pose.position.x = self.points[counter][0]
+            goal.target_pose.pose.position.y = self.points[counter][1]
+            goal.target_pose.pose.position.z = 0.0
+            q = tf.transformations.quaternion_from_euler(0, 0, self.points[counter][2])
+            goal.target_pose.pose.orientation = Quaternion(*q)
 
-def random_navigator():
-    rospy.Subscriber("available_robots", AvailableRobotArray, available_robot_callback)
+            # Sends the goal to the action server.
+            client.send_goal(goal)
+
+            # Waits for the server to finish performing the action.
+            while not rospy.is_shutdown():
+                if client.wait_for_result(rospy.Duration(1)):
+                    break
+            if forward:
+                counter = (counter + 1) % len(self.points)
+            else:
+                counter = counter - 1
+                if counter < 0:
+                    counter = len(self.points) - 1
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('random_navigator')
-        random_navigator()
+        rospy.init_node('multi_robot_patroller')
+        multi_robot_patroller = MultiRobotPatroller()
     except rospy.ROSInterruptException:
         pass

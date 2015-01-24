@@ -1,17 +1,13 @@
 publishers:
-  - scan_filtered
   - odom
   - /tf
-  - tf_changes
   - /tf_changes
-  - /map
   - amcl_pose
   - move_base/EBandPlannerROS/global_plan
 subscribers: 
+  - /map_metadata
   - initialpose
-  - move_base_simple/goal
 services:
-  - /static_map
   - move_base_interruptable/pause
   - move_base_interruptable/resume
 action_clients: []

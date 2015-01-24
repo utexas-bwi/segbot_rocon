@@ -1,5 +1,14 @@
 <launch>
+
+  <arg name="multimap_file" default="$(find utexas_gdc)/maps/simulation/multimap/test.yaml" />
+
   <node pkg="segbot_navigation_concert" name="multi_robot_navigation" type="multi_robot_navigation"/>
-  <node pkg="segbot_navigation_concert" name="multi_robot_navigator" type="multi_robot_navigator"/>
+  <node pkg="multi_level_map_server" name="multi_level_map_server" type="multi_level_map_server">
+    <rosparam command="load" file="$(arg multimap_file)" />               
+    <remap from="map_metadata" to="/map_metadata" />
+  </node>
+
   <node pkg="segbot_navigation_concert" name="random_navigator" type="random_navigator"/>
+
+  <!-- <node pkg="segbot_navigation_concert" name="multi_robot_navigator" type="multi_robot_navigator"/> -->
 </launch>

@@ -83,7 +83,7 @@ class MultiRobotNavigation:
         '''
         resource = scheduler_msgs.Resource()
         resource.id = unique_id.toMsg(unique_id.fromRandom())
-        resource.rapp = 'segbot_rapps/simulated_segbot_nav_3ne'
+        resource.rapp = 'segbot_rapps/nav'
         resource.uri = 'rocon:/'
         resource_request_id = self.requester.new_request([resource], priority=self.service_priority)
         self.pending_requests.append(resource_request_id)

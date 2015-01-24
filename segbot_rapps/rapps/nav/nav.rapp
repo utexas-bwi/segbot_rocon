@@ -3,4 +3,4 @@ description:       Drive a segbot around a pre-made map.
 compatibility:     rocon:/
 launch:            nav.launch
 public_interface:  nav.interface
-icon:              placeholder_icon.png
+icon:              nav.png

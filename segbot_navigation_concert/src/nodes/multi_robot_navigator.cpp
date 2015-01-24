@@ -250,6 +250,7 @@ void MultiRobotNavigator::spin() {
     // Create controllers for each robot.
     BOOST_FOREACH(const std::string robot, available_robots_) {
       if (robot_status_.find(robot) == robot_status_.end()) {
+        ROS_INFO_STREAM("Adding robot " << robot << " to monitored robots.");
         // Setup all the subcribers
         ros::NodeHandle nh("/");
         robot_locations_sub_[robot] = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(robot + "/amcl_pose", 1,
@@ -279,6 +280,8 @@ void MultiRobotNavigator::spin() {
               // Compare the expanded plans for any collision.
               if (plansOverlap(expanded_plan_[ri], expanded_plan_[rj])) {
 
+                ROS_INFO_STREAM("Robots " << ri << " and " << rj << "are about to collide!");
+
                 // Let's pause both the robots. 
                 pauseRobot(ri);
                 pauseRobot(rj);
@@ -292,8 +295,10 @@ void MultiRobotNavigator::spin() {
 
                 if (bypassdistancei > bypassdistancej) {
                   // Divert robot i to the bypass point.
+                  ROS_INFO_STREAM("Sending " << ri << " to bypass point, and pausing robot " << rj << ".");
                   sendNavigationGoal(ri, bypassi, HEADING_TO_BYPASS_POINT);
                 } else {
+                  ROS_INFO_STREAM("Sending " << rj << " to bypass point, and pausing robot " << ri << ".");
                   sendNavigationGoal(rj, bypassj, HEADING_TO_BYPASS_POINT);
                 }
 
@@ -311,12 +316,14 @@ void MultiRobotNavigator::spin() {
       for (int i = 0; i < available_robots_vector.size(); ++i) {
         const std::string& ri = available_robots_vector[i];
         if (robot_status_[ri] == HEADING_TO_BYPASS_POINT) {
+          // TODO if navigation action fails, should probably attempt to restart it with a counter
           if (hasNavigationActionCompleted(ri)) {
             int j = intercepted_robots_[i];
             const std::string& rj = available_robots_vector[j];
             robot_status_[ri] = WAITING_AT_BYPASS_POINT;
             min_bypass_distance_[i] = getDistance(robot_locations_[ri],
                                                   robot_locations_[rj]);
+            ROS_INFO_STREAM("Robot " << ri << " has reached bypass point, resuming robot " << rj << " to normal goal.");
             resumeRobot(rj);
           }
         }
@@ -331,6 +338,7 @@ void MultiRobotNavigator::spin() {
           const std::string& rj = available_robots_vector[j];
           float current_distance = getDistance(robot_locations_[ri], robot_locations_[rj]);
           if (current_distance > min_bypass_distance_[i] + 0.50f) {
+            ROS_INFO_STREAM("Robot " << rj << " has crossed bypass point, resuming robot " << ri << " to normal goal.");
             intercepted_robots_.erase(i);
             intercepted_robots_.erase(j);
             resumeRobot(ri);
