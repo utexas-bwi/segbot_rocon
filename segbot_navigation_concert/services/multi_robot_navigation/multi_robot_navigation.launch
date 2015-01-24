@@ -1,3 +1,5 @@
 <launch>
   <node pkg="segbot_navigation_concert" name="multi_robot_navigation" type="multi_robot_navigation"/>
+  <node pkg="segbot_navigation_concert" name="multi_robot_navigator" type="multi_robot_navigator"/>
+  <node pkg="segbot_navigation_concert" name="random_navigator" type="random_navigator"/>
 </launch>
