@@ -1,0 +1,8 @@
+<concert>
+
+  <launch title="concert:11311" package="segbot_concert_services" name="concert.launch" port="11311" >
+    <arg name="concert_name" value="SegbotGazeboDemoConcert" />
+    <arg name="services" value="segbot_concert_services/segbot_gazebo_demo.services" />
+  </launch>
+
+</concert>

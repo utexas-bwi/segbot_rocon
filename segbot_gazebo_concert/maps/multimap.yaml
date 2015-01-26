@@ -1,5 +1,0 @@
-maps:
-  empty_world:
-    yaml: package://segbot_gazebo_concert/maps/empty_world/empty_world.yaml
-    origin: [0, 0, 0, 0, 0, 0]
-    data_directory: package://segbot_gazebo_concert/maps/empty_world

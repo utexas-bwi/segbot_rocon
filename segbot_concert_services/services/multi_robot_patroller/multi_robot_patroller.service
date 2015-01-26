@@ -1,0 +1,6 @@
+name: MultiRobotPatroller
+description: Gives navigation commands to all robots to patrol a specific route.
+author: Piyush Khandelwal
+launcher_type: roslaunch
+launcher: segbot_concert_services/multi_robot_patroller.launch
+interactions: segbot_concert_services/multi_robot_patroller.interactions

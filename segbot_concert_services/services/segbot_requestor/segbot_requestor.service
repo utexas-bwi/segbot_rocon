@@ -1,0 +1,7 @@
+name: SegbotRequestor
+description: Launches navigation application on multiple segbots and pulls them into the concert framework.
+author: Piyush Khandelwal
+launcher_type: roslaunch
+launcher: segbot_concert_services/segbot_requestor.launch
+interactions: segbot_concert_services/segbot_requestor.interactions
+parameters: segbot_concert_services/segbot_requestor.parameters

@@ -1,0 +1,69 @@
+<package>
+  <name>segbot_concert_services</name>
+  <version>0.0.0</version>
+  <description>
+    A simple software concert describing how multiple robots launched in
+    simulation can be used by the concert framework. This package follows the
+    same pattern as turtle_concert.
+  </description>
+
+  <maintainer email="piyushk@gmail.com">Daniel Stonier</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/segbot_concert_services</url>
+  <url type="repository">https://github.com/robotics-in-concert/rocon_tutorials</url>
+  <url type="bugtracker">https://github.com/robotics-in-concert/rocon_tutorials/issues</url>
+
+  <author email="piyushk@gmail.com">Piyush Khandelwal</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>actionlib</build_depend>
+  <build_depend>boost</build_depend>
+  <build_depend>bwi_mapper</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>move_base_msgs</build_depend>
+  <build_depend>multi_level_map_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+
+  <run_depend>actionlib</run_depend>
+  <run_depend>actionlib_msgs</run_depend>
+  <run_depend>boost</run_depend>
+  <run_depend>bwi_mapper</run_depend>
+  <run_depend>concert_master</run_depend>
+  <run_depend>concert_msgs</run_depend>
+  <run_depend>concert_scheduler_requests</run_depend>
+  <run_depend>concert_service_admin</run_depend>
+  <run_depend>concert_service_segbot_gazebo</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>move_base_msgs</run_depend>
+  <run_depend>multi_level_map_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>rocon_app_manager</run_depend>
+  <run_depend>rocon_apps</run_depend>
+  <run_depend>rocon_bubble_icons</run_depend>
+  <run_depend>rocon_python_comms</run_depend>
+  <run_depend>rocon_python_utils</run_depend>
+  <run_depend>rocon_uri</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>std_srvs</run_depend>
+  <run_depend>utexas_gdc</run_depend>
+
+  <!-- Dependencies required for running a concert on Ubuntu -->
+  <run_depend>zeroconf_avahi</run_depend> 
+  <run_depend>zeroconf_msgs</run_depend>
+
+  <export>
+    <concert_service>services/segbot_gazebo/segbot_gazebo.service</concert_service>
+    <concert_service>services/segbot_requestor/segbot_requestor.service</concert_service>
+    <concert_service>services/multi_robot_patroller/multi_robot_patroller.service</concert_service>
+    <concert_gazebo>robots/segbot/segbot.concert_gazebo</concert_gazebo>
+  </export>
+
+</package>

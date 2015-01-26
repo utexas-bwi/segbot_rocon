@@ -1,7 +1,0 @@
-<concert>
-
-  <launch title="concert:11311" package="segbot_navigation_concert" name="concert.launch" port="11311" >
-    <arg name="demo_services" value="segbot_navigation_concert/gazebo_demo.services" />
-  </launch>
-
-</concert>

@@ -1,0 +1,19 @@
+robots:
+  - name: guimul
+    type: segbot
+    robot_rapp_whitelist: [rocon_apps, segbot_rapps]
+    location: [0.0, 0.0, 0.0]
+  - name: gamza 
+    type: segbot
+    robot_rapp_whitelist: [rocon_apps, segbot_rapps]
+    location: [0.0, 2.0, 3.1415]
+types:
+  - name: segbot
+    launch: segbot_concert_services/segbot.launch 
+    flip_rule:
+      pub:
+        - odom
+        - scan_filtered
+      sub:
+        - cmd_vel
+world_file: segbot_concert_services/empty.world

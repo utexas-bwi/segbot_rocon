@@ -1,0 +1,16 @@
+<launch>
+
+  <arg name="services" default="segbot_concert_services/demo.services"/>
+  <arg name="concert_name" default="SegbotConcert"/>
+  <arg name="scheduler_type" default="compatibility_tree"/>
+
+  <include file="$(find concert_master)/launch/concert_master.launch">
+      <arg name="concert_name" value="$(arg concert_name)"/>
+      <arg name="services" value="$(arg services)"/>
+      <arg name="conductor_auto_invite" value="true" />
+      <arg name="conductor_local_clients_only" value="true" />
+      <arg name="default_auto_enable_services" value="all" />
+      <arg name="scheduler_type" value="$(arg scheduler_type)"/>
+  </include>
+
+</launch>

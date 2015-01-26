@@ -1,0 +1,11 @@
+<launch>
+
+  <node pkg="segbot_concert_services" name="segbot_requestor" type="segbot_requestor"/>
+
+  <arg name="multimap_file" default="$(find segbot_concert_services)/maps/empty_world.multimap.yaml" />
+  <node pkg="multi_level_map_server" name="multi_level_map_server" type="multi_level_map_server">
+    <rosparam command="load" file="$(arg multimap_file)" />               
+    <remap from="map_metadata" to="/map_metadata" />
+  </node>
+
+</launch>

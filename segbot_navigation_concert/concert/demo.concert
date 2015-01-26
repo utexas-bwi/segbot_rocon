@@ -1,7 +1,0 @@
-<concert>
-
-  <arg name="scheduler_type" default="compatibility_tree"/> <!-- compatibility_tree, simple -->
-
-  <launch title="concert:11311" package="segbot_navigation_concert" name="concert.launch" port="11311" />
-
-</concert>

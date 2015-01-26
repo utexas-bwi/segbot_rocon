@@ -1,0 +1,91 @@
+#! /usr/bin/env python
+
+import actionlib
+import rospy
+import tf
+import thread
+import time
+
+from actionlib_msgs.msg import GoalStatus
+from geometry_msgs.msg import Quaternion
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from segbot_concert_services.msg import AvailableRobotArray
+
+class MultiRobotPatroller(object):
+
+    def __init__(self):
+
+        default_points = [(0, 0, 1.578), (0, 5, 0), (5, 5, -1.578), (5, 0, 3.1414)]
+        self.points = rospy.get_param("points", default_points)
+        self.flip_direction = rospy.get_param("flip_direction", False)
+
+        self.available_robots = []
+        self.global_start_counter = 0
+        self.global_forward = True
+
+        rospy.Subscriber("available_robots", AvailableRobotArray, self.available_robot_callback)
+        rospy.spin()
+
+    def available_robot_callback(self, msg):
+        for robot_resource in msg.robot_name:
+            results = robot_resource.split('/')
+            robot_name = results[2]
+            if robot_name not in self.available_robots:
+                self.available_robots.append(robot_name)
+                thread.start_new_thread(self.navigate_robot, (robot_name, self.global_start_counter,
+                                                              self.global_forward))
+                if self.flip_direction:
+                    self.global_forward = not self.global_forward
+                self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
+
+    def navigate_robot(self, robot_name, start_counter, forward):
+
+        client = actionlib.SimpleActionClient('/' + robot_name + '/move_base_interruptable', MoveBaseAction)
+        resolved_frame = '/' + robot_name + '/level_mux/map'
+
+        # Waits until the action server has started up and started
+        # listening for goals.
+        while not rospy.is_shutdown():
+            if client.wait_for_server(rospy.Duration(1)):
+                break
+
+        counter = start_counter
+        failures = 0
+        while not rospy.is_shutdown():
+            # Creates a goal to send to the action server.
+            goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = resolved_frame
+            goal.target_pose.header.stamp = rospy.get_rostime()
+            goal.target_pose.pose.position.x = self.points[counter][0]
+            goal.target_pose.pose.position.y = self.points[counter][1]
+            goal.target_pose.pose.position.z = 0.0
+            q = tf.transformations.quaternion_from_euler(0, 0, self.points[counter][2])
+            goal.target_pose.pose.orientation = Quaternion(*q)
+
+            # Sends the goal to the action server.
+            client.send_goal(goal)
+
+            # Waits for the server to finish performing the action.
+            while not rospy.is_shutdown():
+                if client.wait_for_result(rospy.Duration(1)):
+                    break
+
+            if client.get_state() == GoalStatus.SUCCEEDED or failures >= 3:
+                failures = 0
+                if forward:
+                    counter = (counter + 1) % len(self.points)
+                else:
+                    counter = counter - 1
+                    if counter < 0:
+                        counter = len(self.points) - 1
+            else:
+                # Try the goal again after given seconds
+                time.sleep(3.0)
+                failures += 1
+
+if __name__ == '__main__':
+    try:
+        rospy.init_node('multi_robot_patroller')
+        multi_robot_patroller = MultiRobotPatroller()
+    except rospy.ROSInterruptException:
+        pass
