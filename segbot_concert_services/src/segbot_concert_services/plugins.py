@@ -45,9 +45,8 @@ class MultiRobotPatrollerPlugin(Plugin):
             self.widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self.widget)
 
-        default_points = [(0, 0, 1.578), (0, 5, 0), (5, 5, -1.578), (5, 0, 3.1414)]
-        self.points = rospy.get_param("points", default_points)
-        self.flip_direction = rospy.get_param("flip_direction", False)
+        self.points = rospy.get_param("points")
+        self.flip_direction = rospy.get_param("flip_direction")
 
         self.available_robots = []
         self.global_start_counter = 0
