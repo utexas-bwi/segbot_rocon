@@ -23,7 +23,6 @@
   <run_depend>concert_msgs</run_depend>
   <run_depend>concert_scheduler_requests</run_depend>
   <run_depend>concert_service_admin</run_depend>
-  <run_depend>concert_service_segbot_gazebo</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>rocon_app_manager</run_depend>
   <run_depend>rocon_apps</run_depend>
@@ -32,6 +31,7 @@
   <run_depend>rocon_python_utils</run_depend>
   <run_depend>rocon_uri</run_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>segbot_concert_services</run_depend>
 
   <!-- Dependencies required for running a concert on Ubuntu -->
   <run_depend>zeroconf_avahi</run_depend> 
