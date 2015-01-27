@@ -44,6 +44,8 @@
   <run_depend>move_base_msgs</run_depend>
   <run_depend>multi_level_map_msgs</run_depend>
   <run_depend>nav_msgs</run_depend>
+  <run_depend>python_qt_binding</run_depend>
+  <run_depend>qt_gui</run_depend>
   <run_depend>rocon_app_manager</run_depend>
   <run_depend>rocon_apps</run_depend>
   <run_depend>rocon_bubble_icons</run_depend>
@@ -51,6 +53,8 @@
   <run_depend>rocon_python_utils</run_depend>
   <run_depend>rocon_uri</run_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>std_srvs</run_depend>
   <run_depend>utexas_gdc</run_depend>
@@ -64,6 +68,7 @@
     <concert_service>services/segbot_requestor/segbot_requestor.service</concert_service>
     <concert_service>services/multi_robot_patroller/multi_robot_patroller.service</concert_service>
     <concert_gazebo>robots/segbot/segbot.concert_gazebo</concert_gazebo>
+    <rqt_gui plugin="${prefix}/plugin.xml" />
   </export>
 
 </package>

@@ -1,37 +1,9 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
-import actionlib
-import rospy
-import tf
-import thread
-import time
+import sys
 
-from actionlib_msgs.msg import GoalStatus
-from geometry_msgs.msg import Quaternion
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from segbot_concert_services.msg import AvailableRobotArray
+from rqt_gui.main import Main
 
-class MultiRobotPatroller(object):
-
-    def __init__(self):
-
-        rospy.spin()
-
-    def available_robot_callback(self, msg):
-        for robot_resource in msg.robot_name:
-            results = robot_resource.split('/')
-            robot_name = results[2]
-            if robot_name not in self.available_robots:
-                self.available_robots.append(robot_name)
-                thread.start_new_thread(self.navigate_robot, (robot_name, self.global_start_counter,
-                                                              self.global_forward))
-                if self.flip_direction:
-                    self.global_forward = not self.global_forward
-                self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
-
-if __name__ == '__main__':
-    try:
-        rospy.init_node('multi_robot_patroller')
-        multi_robot_patroller = MultiRobotPatroller()
-    except rospy.ROSInterruptException:
-        pass
+plugin = 'segbot_concert_services.plugins.MultiRobotPatrollerPlugin'
+main = Main(filename=plugin)
+sys.exit(main.main(standalone=plugin))

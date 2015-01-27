@@ -11,7 +11,6 @@ from geometry_msgs.msg import Quaternion
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from segbot_concert_services.msg import AvailableRobotArray
 
-
 from python_qt_binding.QtCore import SIGNAL
 from python_qt_binding.QtGui import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 from qt_gui.plugin import Plugin
@@ -28,8 +27,18 @@ class MultiRobotPatrollerPlugin(Plugin):
         self.master_layout = QVBoxLayout(self.widget)
 
         self.buttons = []
-        self.button_layout = QHBoxLayout(self.widget)
-        self.master_layout.addWidget(self.button_layout)
+        self.button_layout = QHBoxLayout()
+        self.master_layout.addLayout(self.button_layout)
+        for button_text in ["Play", "Pause"]:
+            button = QPushButton(button_text, self.widget)
+            button.clicked[bool].connect(self.handle_button)
+            button.setCheckable(True)
+            self.button_layout.addWidget(button)
+            if button_text == "Pause":
+                button.setChecked(True)
+            self.buttons.append(button)
+
+        self.text_labels = {}
 
         self.widget.setObjectName('MultiRobotPatrollerPluginUI')
         if context.serial_number() > 1:
@@ -44,11 +53,13 @@ class MultiRobotPatrollerPlugin(Plugin):
         self.global_start_counter = 0
         self.global_forward = True
 
-        self.available_robot_subscriber = rospy.Subscriber("available_robots", AvailableRobotArray,
+        self.available_robot_subscriber = rospy.Subscriber("/available_robots", AvailableRobotArray,
                                                            self.available_robot_callback)
 
         self.robot_goals = {}
         self.paused = True
+
+        self.connect(self.widget, SIGNAL("update"), self.update)
 
     def navigate_robot(self, robot_name, start_counter, forward):
 
@@ -78,7 +89,8 @@ class MultiRobotPatrollerPlugin(Plugin):
                 # Sends the goal to the action server.
                 client.send_goal(goal)
 
-                self.widget.emit(SIGNAL("update_button_status"))
+                self.robot_goals[robot_name] = counter
+                self.widget.emit(SIGNAL("update"))
 
                 # Waits for the server to finish performing the action.
                 while not rospy.is_shutdown():
@@ -100,59 +112,41 @@ class MultiRobotPatrollerPlugin(Plugin):
             else:
                 time.sleep(1.0)
 
-    def update_buttons(self):
-        self.clean()
-        for index, level in enumerate(self.levels):
-            self.text_label.setText("Choose Level: ")
-            button = QPushButton(level.level_id, self.widget)
-            button.clicked[bool].connect(self.handle_button)
-            button.setCheckable(True)
-            self.master_layout.addWidget(button)
-            self.buttons.append(button)
+    def available_robot_callback(self, msg):
+        for robot_resource in msg.robot_name:
+            results = robot_resource.split('/')
+            robot_name = results[2]
+            if robot_name not in self.available_robots:
+                self.available_robots.append(robot_name)
+                thread.start_new_thread(self.navigate_robot, (robot_name, self.global_start_counter,
+                                                              self.global_forward))
+                if self.flip_direction:
+                    self.global_forward = not self.global_forward
+                self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
 
-        # Subscribe to the current level we are on.
-        if self.status_subscriber is None:
-            self.status_subscriber = rospy.Subscriber("level_mux/current_level", LevelMetaData, self.process_level_status)
+    def update(self):
 
-    def update_button_status(self):
-        for index, level in enumerate(self.levels):
-            if self.current_level == level.level_id:
-                self.buttons[index].setChecked(True)
-            else:
-                self.buttons[index].setChecked(False)
-
-    def process_level_status(self, msg):
-        level_found = False
-        for level in self.levels:
-            if msg.level_id == level.level_id:
-                self.current_level = level.level_id
-                level_found = True
-                break
-        if not level_found:
-            self.current_level = None
-        self.widget.emit(SIGNAL("update_button_status"))
+        for robot in self.robot_goals:
+            point = self.points[self.robot_goals[robot]]
+            text = robot + " -> (" + str(point[0]) + "," + str(point[1]) + ")"
+            if robot not in self.text_labels:
+                self.text_labels[robot] = QLabel(robot, self.widget)
+                self.master_layout.addWidget(self.text_labels[robot])
+            self.text_labels[robot].setText(text)
 
     def handle_button(self):
         source = self.sender()
 
-        if source.text() == self.current_level:
+        if ((source.text() == "Pause" and self.paused) or
+            (source.text() == "Play" and not self.paused)):
             source.setChecked(True)
             return
 
-        # Construct a identity pose. The level selector cannot be used to choose the initialpose, as it does not have
-        # the interface for specifying the position. The position should be specified via rviz.
-        origin_pose = PoseWithCovarianceStamped()
-        origin_pose.header.frame_id = frameIdFromLevelId(source.text())
-        origin_pose.pose.pose.orientation.w = 1    # Makes the origin quaternion valid.
-        origin_pose.pose.covariance[0] = 1.0
-        origin_pose.pose.covariance[7] = 1.0
-        origin_pose.pose.covariance[14] = 1.0
-        origin_pose.pose.covariance[21] = 1.0
-        origin_pose.pose.covariance[28] = 1.0
-        origin_pose.pose.covariance[35] = 1.0
+        for button in self.buttons:
+            if button != source:
+                button.setChecked(False)
 
-        # Don't actually publish the initial pose via the level selector. It doesn't know any better.
-        self.level_selector_proxy(source.text(), False, origin_pose)
+        self.paused = (source.text() == "Pause")
 
     def save_settings(self, plugin_settings, instance_settings):
         pass
