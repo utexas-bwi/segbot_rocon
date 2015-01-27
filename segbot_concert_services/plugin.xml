@@ -1,0 +1,14 @@
+<library path="src">
+  <class name="MultiRobotPatrollerPlugin"
+    type="segbot_concert_services.plugins.MultiRobotPatrollerPlugin"
+    base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A button widget that allows you to start/stop the current robots from patrolling the route.
+    </description>
+    <qtgui>
+      <label>Multi Robot Patroller Plugin</label>
+      <statustip>Start/Stop Multi Robot Patrol.</statustip>
+    </qtgui>
+  </class>
+</library>
+

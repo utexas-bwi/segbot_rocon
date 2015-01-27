@@ -22,6 +22,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(Boost REQUIRED)
 
+catkin_python_setup()
+
 add_message_files(
   FILES
   AvailableRobotArray.msg

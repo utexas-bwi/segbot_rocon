@@ -1,0 +1,9 @@
+- resource_name: segbot_concert_services/segbot_gazebo
+  overrides:
+    parameters: segbot_concert_services/multi_robot_passer_gazebo_segbot_gazebo.parameters
+- resource_name: segbot_concert_services/segbot_requestor
+  overrides:
+    parameters: segbot_concert_services/multi_robot_passer_gazebo_segbot_requestor.parameters
+- resource_name: segbot_concert_services/multi_robot_patroller
+  overrides:
+    parameters: segbot_concert_services/multi_robot_passer_gazebo_patroller.parameters

@@ -1,2 +1,4 @@
 # Number of turtles to capture
 segbots: 2
+multi_level_map_server:
+  map_file: package://segbot_concert_services/maps/empty_world.multimap.yaml

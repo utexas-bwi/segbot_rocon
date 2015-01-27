@@ -98,10 +98,10 @@ MultiRobotNavigator::MultiRobotNavigator() : multimap_available_(false) {
 
   // Make sure you publish the default map at least once so that navigation can start up! Ensure this pub is latched.
   ros::NodeHandle nh;
-  available_robots_subscriber_ = nh.subscribe("available_robots", 1, &MultiRobotNavigator::availableRobotArrayHandler,
+  available_robots_subscriber_ = nh.subscribe("/available_robots", 1, &MultiRobotNavigator::availableRobotArrayHandler,
                                               this);
 
-  multimap_subscriber_ = nh.subscribe("map_metadata", 1, &MultiRobotNavigator::multimapHandler, this);
+  multimap_subscriber_ = nh.subscribe("/map_metadata", 1, &MultiRobotNavigator::multimapHandler, this);
 
 }
 

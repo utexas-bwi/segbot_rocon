@@ -2,7 +2,7 @@
 
   <launch title="concert:11311" package="segbot_concert_services" name="concert.launch" port="11311" >
     <arg name="concert_name" value="MultiRobotPasserConcert" />
-    <arg name="services" value="segbot_concert_services/multi_robot_passer.services" />
+    <arg name="services" value="segbot_concert_services/multi_robot_passer_gazebo.services" />
   </launch>
 
 </concert>

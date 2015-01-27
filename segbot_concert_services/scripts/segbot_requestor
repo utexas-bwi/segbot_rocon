@@ -62,7 +62,7 @@ class SegbotRequestor:
         self.pending_requests = []
         self.allocated_requests = []
         self.allocated_resources = []
-        self.status_publisher = rospy.Publisher('available_robots', AvailableRobotArray, latch=True)
+        self.status_publisher = rospy.Publisher('/available_robots', AvailableRobotArray, latch=True)
         number_of_segbots = rospy.get_param("robots", default=10)
         rospy.loginfo("SegbotRequestor : requesting %s segbots" % number_of_segbots)
         for unused_i in range(0, number_of_segbots):
