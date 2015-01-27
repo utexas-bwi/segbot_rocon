@@ -121,7 +121,8 @@ class MultiRobotPatrollerPlugin(Plugin):
                                                               self.global_forward))
                 if self.flip_direction:
                     self.global_forward = not self.global_forward
-                self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
+                else:
+                    self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
 
     def update(self):
 
