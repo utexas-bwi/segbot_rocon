@@ -34,14 +34,14 @@ enum RobotStatus {
   WAITING_FOR_OTHER_ROBOT,
 };
 
-class MultiRobotNavigator {
+class MultiRobotPasser {
 
   public:
 
     typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> RobotController;
     typedef boost::shared_ptr<RobotController> RobotControllerPtr;
 
-    MultiRobotNavigator();
+    MultiRobotPasser();
     void spin();
 
   protected:
@@ -92,20 +92,20 @@ class MultiRobotNavigator {
 
 };
 
-MultiRobotNavigator::MultiRobotNavigator() : multimap_available_(false) {
+MultiRobotPasser::MultiRobotPasser() : multimap_available_(false) {
 
-  ros::param::param("~inflation_radius", inflation_radius_, 0.3f);
+  ros::param::param("inflation_radius", inflation_radius_, 0.3f);
 
   // Make sure you publish the default map at least once so that navigation can start up! Ensure this pub is latched.
   ros::NodeHandle nh;
-  available_robots_subscriber_ = nh.subscribe("/available_robots", 1, &MultiRobotNavigator::availableRobotArrayHandler,
+  available_robots_subscriber_ = nh.subscribe("/available_robots", 1, &MultiRobotPasser::availableRobotArrayHandler,
                                               this);
 
-  multimap_subscriber_ = nh.subscribe("/map_metadata", 1, &MultiRobotNavigator::multimapHandler, this);
+  multimap_subscriber_ = nh.subscribe("/map_metadata", 1, &MultiRobotPasser::multimapHandler, this);
 
 }
 
-void MultiRobotNavigator::multimapHandler(const multi_level_map_msgs::MultiLevelMapData::ConstPtr& multimap) {
+void MultiRobotPasser::multimapHandler(const multi_level_map_msgs::MultiLevelMapData::ConstPtr& multimap) {
 
   // TODO assuming there is a single floor, read it in for now.
   const std::string& map_file = multimap->levels[0].map_file;
@@ -117,14 +117,14 @@ void MultiRobotNavigator::multimapHandler(const multi_level_map_msgs::MultiLevel
 
 }
 
-void MultiRobotNavigator::robotLocationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& pose, std::string robot_name) {
+void MultiRobotPasser::robotLocationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& pose, std::string robot_name) {
   geometry_msgs::PoseStamped pose_only;
   pose_only.header = pose->header;
   pose_only.pose = pose->pose.pose;
   robot_locations_[robot_name] = pose_only;
 }
 
-void MultiRobotNavigator::expandPlan(const nav_msgs::Path& plan, nav_msgs::OccupancyGrid& expanded_plan) {
+void MultiRobotPasser::expandPlan(const nav_msgs::Path& plan, nav_msgs::OccupancyGrid& expanded_plan) {
 
   // Create an opencv image and draw circles with the inflation radius using the plan.
   cv::Mat temp(original_map_.info.width, original_map_.info.height, CV_8UC1, cv::Scalar(100));
@@ -151,7 +151,7 @@ void MultiRobotNavigator::expandPlan(const nav_msgs::Path& plan, nav_msgs::Occup
   }
 }
 
-bool MultiRobotNavigator::plansOverlap(const nav_msgs::OccupancyGrid& p1, const nav_msgs::OccupancyGrid& p2) {
+bool MultiRobotPasser::plansOverlap(const nav_msgs::OccupancyGrid& p1, const nav_msgs::OccupancyGrid& p2) {
   // TODO could do a counter here instead of returning on a single pixel overlap.
   for (int val = 0; val < p1.data.size(); ++val) {
     if (p1.data[val] == 0 && p2.data[val] == 0) {
@@ -161,12 +161,12 @@ bool MultiRobotNavigator::plansOverlap(const nav_msgs::OccupancyGrid& p1, const 
   return false;
 }
 
-void MultiRobotNavigator::robotPathHandler(const nav_msgs::Path::ConstPtr& path, std::string robot_name) {
+void MultiRobotPasser::robotPathHandler(const nav_msgs::Path::ConstPtr& path, std::string robot_name) {
   global_plan_[robot_name] = *path;
   expandPlan(global_plan_[robot_name], expanded_plan_[robot_name]);
 }
 
-void MultiRobotNavigator::availableRobotArrayHandler(const segbot_concert_services::AvailableRobotArray::ConstPtr& robots) {
+void MultiRobotPasser::availableRobotArrayHandler(const segbot_concert_services::AvailableRobotArray::ConstPtr& robots) {
   BOOST_FOREACH(const std::string resource_str, robots->robot_name) {
     std::vector<std::string> results;
     boost::split(results, resource_str, boost::is_any_of("/"));
@@ -175,7 +175,7 @@ void MultiRobotNavigator::availableRobotArrayHandler(const segbot_concert_servic
   }
 }
 
-void MultiRobotNavigator::pauseRobot(const std::string& robot_name, 
+void MultiRobotPasser::pauseRobot(const std::string& robot_name, 
                                      RobotStatus post_success_status) {
   std_srvs::Empty empty_srv;
   if (robot_pauser_[robot_name].call(empty_srv)) {
@@ -185,7 +185,7 @@ void MultiRobotNavigator::pauseRobot(const std::string& robot_name,
   }
 }
 
-void MultiRobotNavigator::resumeRobot(const std::string& robot_name) {
+void MultiRobotPasser::resumeRobot(const std::string& robot_name) {
   std_srvs::Empty empty_srv;
   if (robot_resumer_[robot_name].call(empty_srv)) {
     robot_status_[robot_name] = NORMAL;
@@ -194,7 +194,7 @@ void MultiRobotNavigator::resumeRobot(const std::string& robot_name) {
   }
 }
 
-void MultiRobotNavigator::sendNavigationGoal(const std::string& robot_name, 
+void MultiRobotPasser::sendNavigationGoal(const std::string& robot_name, 
                                              const geometry_msgs::PoseStamped& pose,
                                              RobotStatus post_send_status) {
   move_base_msgs::MoveBaseGoal goal;
@@ -203,19 +203,19 @@ void MultiRobotNavigator::sendNavigationGoal(const std::string& robot_name,
   robot_status_[robot_name] = post_send_status;
 }
 
-bool MultiRobotNavigator::hasNavigationActionCompleted(const std::string& robot_name) {
+bool MultiRobotPasser::hasNavigationActionCompleted(const std::string& robot_name) {
   actionlib::SimpleClientGoalState state = robot_controller_[robot_name]->getState();
   return state != actionlib::SimpleClientGoalState::PENDING && state != actionlib::SimpleClientGoalState::ACTIVE;
 }
 
-float MultiRobotNavigator::getDistance(const geometry_msgs::PoseStamped& p1, 
+float MultiRobotPasser::getDistance(const geometry_msgs::PoseStamped& p1, 
                                       const geometry_msgs::PoseStamped& p2) {
   float xdiff = p1.pose.position.x - p2.pose.position.x;
   float ydiff = p1.pose.position.y - p2.pose.position.y;
   return xdiff * xdiff + ydiff * ydiff;
 }
 
-geometry_msgs::PoseStamped MultiRobotNavigator::calculateBypassPoint(const geometry_msgs::PoseStamped& p1, 
+geometry_msgs::PoseStamped MultiRobotPasser::calculateBypassPoint(const geometry_msgs::PoseStamped& p1, 
                                                                      const geometry_msgs::PoseStamped& p2) {
 
   float xdiff = p2.pose.position.x - p1.pose.position.x;
@@ -243,7 +243,7 @@ geometry_msgs::PoseStamped MultiRobotNavigator::calculateBypassPoint(const geome
   return ret;
 }
 
-void MultiRobotNavigator::spin() {
+void MultiRobotPasser::spin() {
   ros::Rate r(10);
   while (ros::ok()) {
 
@@ -254,10 +254,10 @@ void MultiRobotNavigator::spin() {
         // Setup all the subcribers
         ros::NodeHandle nh("/");
         robot_locations_sub_[robot] = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(robot + "/amcl_pose", 1,
-                                                   boost::bind(&MultiRobotNavigator::robotLocationHandler, this, _1,
+                                                   boost::bind(&MultiRobotPasser::robotLocationHandler, this, _1,
                                                                robot)); 
         robot_path_sub_[robot] = nh.subscribe<nav_msgs::Path>(robot + "/move_base/EBandPlannerROS/global_plan", 1,
-                                              boost::bind(&MultiRobotNavigator::robotPathHandler, this, _1, robot)); 
+                                              boost::bind(&MultiRobotPasser::robotPathHandler, this, _1, robot)); 
         // The robot controllers
         robot_controller_[robot] = RobotControllerPtr(new RobotController("/" + robot + "/move_base_interruptable", true)); 
         robot_resumer_[robot] = nh.serviceClient<std_srvs::Empty>(robot + "move_base_interruptable/resume");
@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
   ros::init(argc, argv, "multi_robot_navigator");
   ros::NodeHandle nh;
 
-  MultiRobotNavigator handler;
+  MultiRobotPasser handler;
   handler.spin();
 
   return 0;

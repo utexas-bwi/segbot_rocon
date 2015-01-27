@@ -48,15 +48,15 @@ catkin_package(
 )
 
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
-add_executable(multi_robot_navigator src/nodes/multi_robot_navigator.cpp)
-target_link_libraries(multi_robot_navigator ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(multi_robot_navigator ${PROJECT_NAME}_generate_messages_cpp)
+add_executable(multi_robot_passer src/nodes/multi_robot_passer.cpp)
+target_link_libraries(multi_robot_passer ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(multi_robot_passer ${PROJECT_NAME}_generate_messages_cpp)
 
 ##############################################################################
 # Installs
 ##############################################################################
 
-install(TARGETS multi_robot_navigator
+install(TARGETS multi_robot_passer
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

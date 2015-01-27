@@ -66,6 +66,7 @@
     <concert_service>services/segbot_gazebo/segbot_gazebo.service</concert_service>
     <concert_service>services/segbot_requestor/segbot_requestor.service</concert_service>
     <concert_service>services/multi_robot_patroller/multi_robot_patroller.service</concert_service>
+    <concert_service>services/multi_robot_passer/multi_robot_passer.service</concert_service>
     <concert_gazebo>robots/segbot/segbot.concert_gazebo</concert_gazebo>
     <rqt_gui plugin="${prefix}/plugin.xml" />
   </export>
