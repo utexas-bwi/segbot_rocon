@@ -270,6 +270,7 @@ void MultiRobotPasser::spin() {
     // Create controllers for each robot.
     BOOST_FOREACH(const std::string robot, available_robots_) {
       if (robot_status_.find(robot) == robot_status_.end()) {
+        robot_status_[robot] = NORMAL;
         ROS_INFO_STREAM("Adding robot " << robot << " to monitored robots.");
         // Setup all the subcribers
         ros::NodeHandle nh("/");
@@ -300,10 +301,10 @@ void MultiRobotPasser::spin() {
       for (int i = 0; i < available_robots_vector.size(); ++i) {
         const std::string& ri = available_robots_vector[i];
         // Check for any new collisions.
-        if (robot_status_[ri] == NORMAL) {
+        if (robot_status_[ri] == NORMAL && expanded_plan_.find(ri) != expanded_plan_.end()) {
           for (int j = i + 1; j < available_robots_vector.size(); ++j) {
             const std::string& rj = available_robots_vector[j];
-            if (robot_status_[rj] == NORMAL) { 
+            if (robot_status_[rj] == NORMAL && expanded_plan_.find(rj) != expanded_plan_.end()) { 
               // Compare the expanded plans for any collision.
               if (plansOverlap(expanded_plan_[ri], expanded_plan_[rj])) {
 
@@ -328,8 +329,6 @@ void MultiRobotPasser::spin() {
 
                 float bypassdistancei = getDistance(robot_locations_[ri], bypassi);
                 float bypassdistancej = getDistance(robot_locations_[rj], bypassj);
-
-                std::cin.get();
 
                 if (bypassdistancei > bypassdistancej) {
                   // Divert robot i to the bypass point.

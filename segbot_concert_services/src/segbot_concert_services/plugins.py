@@ -95,6 +95,9 @@ class MultiRobotPatrollerPlugin(Plugin):
                 while not rospy.is_shutdown():
                     if client.wait_for_result(rospy.Duration(1)):
                         break
+                    elif self.paused:
+                        client.cancel_goal()
+                        break
 
                 if client.get_state() == GoalStatus.SUCCEEDED or failures >= 3:
                     failures = 0
@@ -121,8 +124,7 @@ class MultiRobotPatrollerPlugin(Plugin):
                                                               self.global_forward))
                 if self.flip_direction:
                     self.global_forward = not self.global_forward
-                else:
-                    self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
+                self.global_start_counter = (self.global_start_counter + 1) % len(self.points)
 
     def update(self):
 

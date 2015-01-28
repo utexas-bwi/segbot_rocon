@@ -6,7 +6,7 @@ robots:
   - name: gamza 
     type: segbot
     robot_rapp_whitelist: [rocon_apps, segbot_rapps]
-    location: [0.0, 10.0, 0.0]
+    location: [33.5, 8.0, 1.57]
 types:
   - name: segbot
     launch: segbot_concert_services/segbot.launch 
