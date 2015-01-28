@@ -1,7 +1,0 @@
-name: Segbot Pond
-description: Launches the segbot_stroll application for segbots in the environment.
-author: Piyush Khandelwal
-launcher_type: roslaunch
-launcher: segbot_gazebo_concert/segbot_pond
-interactions: segbot_gazebo_concert/segbot_pond
-parameters: segbot_gazebo_concert/segbot_pond
