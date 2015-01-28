@@ -57,6 +57,7 @@ class MultiRobotPasser {
     // TODO Assumes a single floor for now.
     nav_msgs::OccupancyGrid original_map_;
     nav_msgs::OccupancyGrid inflated_map_;
+    ros::Publisher inflated_map_publisher_;
 
     std::map<std::string, RobotStatus> robot_status_;
     void robotLocationHandler(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& pose, std::string robot_name);
@@ -66,6 +67,7 @@ class MultiRobotPasser {
     std::map<std::string, ros::Subscriber> robot_path_sub_;
     std::map<std::string, nav_msgs::Path> global_plan_;
     std::map<std::string, nav_msgs::OccupancyGrid> expanded_plan_;
+    std::map<std::string, ros::Publisher> expanded_plan_publisher_;
     std::map<std::string, RobotControllerPtr> robot_controller_;
     std::map<std::string, ros::ServiceClient> robot_resumer_;
     std::map<std::string, ros::ServiceClient> robot_pauser_;
@@ -76,10 +78,10 @@ class MultiRobotPasser {
     std::map<int, float> min_bypass_distance_;
 
     /* Some helper functions. */
-    void pauseRobot(const std::string& robot_name, 
+    bool pauseRobot(const std::string& robot_name, 
                     RobotStatus post_success_status = WAITING_FOR_OTHER_ROBOT);
 
-    void resumeRobot(const std::string& robot_name);
+    bool resumeRobot(const std::string& robot_name);
 
     void sendNavigationGoal(const std::string& robot_name, 
                             const geometry_msgs::PoseStamped& pose,
@@ -100,6 +102,7 @@ MultiRobotPasser::MultiRobotPasser() : multimap_available_(false) {
   ros::NodeHandle nh;
   available_robots_subscriber_ = nh.subscribe("/available_robots", 1, &MultiRobotPasser::availableRobotArrayHandler,
                                               this);
+  inflated_map_publisher_ = nh.advertise<nav_msgs::OccupancyGrid>("/inflated_map", 1, true);
 
   multimap_subscriber_ = nh.subscribe("/map_metadata", 1, &MultiRobotPasser::multimapHandler, this);
 
@@ -112,6 +115,9 @@ void MultiRobotPasser::multimapHandler(const multi_level_map_msgs::MultiLevelMap
   bwi_mapper::MapLoader mapper(map_file);
   mapper.getMap(original_map_);
   bwi_mapper::inflateMap(inflation_radius_, original_map_, inflated_map_);
+  inflated_map_.header.stamp = ros::Time::now();
+  inflated_map_.header.frame_id = "map";
+  inflated_map_publisher_.publish(inflated_map_);
 
   multimap_available_ = true;
 
@@ -127,13 +133,13 @@ void MultiRobotPasser::robotLocationHandler(const geometry_msgs::PoseWithCovaria
 void MultiRobotPasser::expandPlan(const nav_msgs::Path& plan, nav_msgs::OccupancyGrid& expanded_plan) {
 
   // Create an opencv image and draw circles with the inflation radius using the plan.
-  cv::Mat temp(original_map_.info.width, original_map_.info.height, CV_8UC1, cv::Scalar(100));
+  cv::Mat temp(original_map_.info.height, original_map_.info.width, CV_8UC1, cv::Scalar(0));
 
   BOOST_FOREACH(const geometry_msgs::PoseStamped& pose, plan.poses) {
     bwi_mapper::Point2f real_world_point(pose.pose.position.x, pose.pose.position.y);
     bwi_mapper::Point2f grid_pos = bwi_mapper::toGrid(real_world_point, original_map_.info);
     int grid_radius = inflation_radius_ / original_map_.info.resolution;
-    cv::circle(temp, grid_pos, grid_radius, cv::Scalar(0));
+    cv::circle(temp, grid_pos, grid_radius, cv::Scalar(100), -1);
   }
 
   // Copy over data from the image.
@@ -154,7 +160,7 @@ void MultiRobotPasser::expandPlan(const nav_msgs::Path& plan, nav_msgs::Occupanc
 bool MultiRobotPasser::plansOverlap(const nav_msgs::OccupancyGrid& p1, const nav_msgs::OccupancyGrid& p2) {
   // TODO could do a counter here instead of returning on a single pixel overlap.
   for (int val = 0; val < p1.data.size(); ++val) {
-    if (p1.data[val] == 0 && p2.data[val] == 0) {
+    if (p1.data[val] == 100 && p2.data[val] == 100) {
       return true;
     }
   }
@@ -164,6 +170,9 @@ bool MultiRobotPasser::plansOverlap(const nav_msgs::OccupancyGrid& p1, const nav
 void MultiRobotPasser::robotPathHandler(const nav_msgs::Path::ConstPtr& path, std::string robot_name) {
   global_plan_[robot_name] = *path;
   expandPlan(global_plan_[robot_name], expanded_plan_[robot_name]);
+  expanded_plan_[robot_name].header.stamp = ros::Time::now();
+  expanded_plan_[robot_name].header.frame_id = robot_name + "/level_mux/map";
+  expanded_plan_publisher_[robot_name].publish(expanded_plan_[robot_name]);
 }
 
 void MultiRobotPasser::availableRobotArrayHandler(const segbot_concert_services::AvailableRobotArray::ConstPtr& robots) {
@@ -175,22 +184,26 @@ void MultiRobotPasser::availableRobotArrayHandler(const segbot_concert_services:
   }
 }
 
-void MultiRobotPasser::pauseRobot(const std::string& robot_name, 
+bool MultiRobotPasser::pauseRobot(const std::string& robot_name, 
                                      RobotStatus post_success_status) {
   std_srvs::Empty empty_srv;
   if (robot_pauser_[robot_name].call(empty_srv)) {
     robot_status_[robot_name] = post_success_status;
+    return true;
   } else {
     ROS_ERROR_STREAM("Unable to pause " + robot_name + ". Check client logs for error message.");
+    return false;
   }
 }
 
-void MultiRobotPasser::resumeRobot(const std::string& robot_name) {
+bool MultiRobotPasser::resumeRobot(const std::string& robot_name) {
   std_srvs::Empty empty_srv;
   if (robot_resumer_[robot_name].call(empty_srv)) {
     robot_status_[robot_name] = NORMAL;
+    return true;
   } else {
     ROS_ERROR_STREAM("Unable to resume " + robot_name + ". Check client logs for error message.");
+    return false;
   }
 }
 
@@ -205,14 +218,20 @@ void MultiRobotPasser::sendNavigationGoal(const std::string& robot_name,
 
 bool MultiRobotPasser::hasNavigationActionCompleted(const std::string& robot_name) {
   actionlib::SimpleClientGoalState state = robot_controller_[robot_name]->getState();
-  return state != actionlib::SimpleClientGoalState::PENDING && state != actionlib::SimpleClientGoalState::ACTIVE;
+  if (state != actionlib::SimpleClientGoalState::PENDING && state != actionlib::SimpleClientGoalState::ACTIVE) {
+    if (state != actionlib::SimpleClientGoalState::SUCCEEDED) {
+      ROS_WARN_STREAM("Robot " << robot_name << "'s bypass navigation action did not complete successfully!");
+    }
+    return true;
+  }
+  return false;
 }
 
 float MultiRobotPasser::getDistance(const geometry_msgs::PoseStamped& p1, 
                                       const geometry_msgs::PoseStamped& p2) {
   float xdiff = p1.pose.position.x - p2.pose.position.x;
   float ydiff = p1.pose.position.y - p2.pose.position.y;
-  return xdiff * xdiff + ydiff * ydiff;
+  return sqrtf(xdiff * xdiff + ydiff * ydiff);
 }
 
 geometry_msgs::PoseStamped MultiRobotPasser::calculateBypassPoint(const geometry_msgs::PoseStamped& p1, 
@@ -223,28 +242,29 @@ geometry_msgs::PoseStamped MultiRobotPasser::calculateBypassPoint(const geometry
   float angle = atan2f(ydiff, xdiff);
   float angle_right = angle - M_PI/2;
 
-  float padding = 0.1f;
-  float counter = padding;
+  float counter = 0.0f;
 
   geometry_msgs::PoseStamped ret = p1;
-  while (counter < padding + 2 * inflation_radius_) {
+  while (counter < 2 * inflation_radius_) {
     float xloc = p1.pose.position.x + counter * cosf(angle_right); 
     float yloc = p1.pose.position.y + counter * sinf(angle_right); 
+    ROS_INFO_STREAM("  Checking " << xloc << "," << yloc);
     bwi_mapper::Point2f real_world_point(xloc, yloc);
-    bwi_mapper::Point2f grid_pos = bwi_mapper::toGrid(real_world_point, original_map_.info);
-    long map_idx = MAP_IDX(original_map_.info.width, grid_pos.x, grid_pos.y);
-    if (inflated_map_.data[map_idx] == 0) {
+    bwi_mapper::Point2d grid_pos(bwi_mapper::toGrid(real_world_point, original_map_.info));
+    int map_idx = MAP_IDX(original_map_.info.width, grid_pos.x, grid_pos.y);
+    if (inflated_map_.data[map_idx] == 100) {
       break;
     }
     ret.pose.position.x = xloc;
     ret.pose.position.y = yloc;
+    counter += 0.05f;
   }
   
   return ret;
 }
 
 void MultiRobotPasser::spin() {
-  ros::Rate r(10);
+  ros::Rate r(100);
   while (ros::ok()) {
 
     // Create controllers for each robot.
@@ -260,8 +280,15 @@ void MultiRobotPasser::spin() {
                                               boost::bind(&MultiRobotPasser::robotPathHandler, this, _1, robot)); 
         // The robot controllers
         robot_controller_[robot] = RobotControllerPtr(new RobotController("/" + robot + "/move_base_interruptable", true)); 
-        robot_resumer_[robot] = nh.serviceClient<std_srvs::Empty>(robot + "move_base_interruptable/resume");
-        robot_pauser_[robot] = nh.serviceClient<std_srvs::Empty>(robot + "move_base_interruptable/pause");
+        robot_resumer_[robot] = nh.serviceClient<std_srvs::Empty>("/" + robot + "/move_base_interruptable/resume");
+        if (!robot_resumer_[robot].waitForExistence(ros::Duration(5))) {
+          ROS_ERROR_STREAM("Unable to find resume service for robot " << robot << ".");
+        }
+        robot_pauser_[robot] = nh.serviceClient<std_srvs::Empty>("/" + robot + "/move_base_interruptable/pause");
+        if (!robot_pauser_[robot].waitForExistence(ros::Duration(5))) {
+          ROS_ERROR_STREAM("Unable to find pause service for robot " << robot << ".");
+        }
+        expanded_plan_publisher_[robot] = nh.advertise<nav_msgs::OccupancyGrid>("/" + robot + "/expanded_plan", 1);
       }
     }
 
@@ -280,11 +307,20 @@ void MultiRobotPasser::spin() {
               // Compare the expanded plans for any collision.
               if (plansOverlap(expanded_plan_[ri], expanded_plan_[rj])) {
 
-                ROS_INFO_STREAM("Robots " << ri << " and " << rj << "are about to collide!");
+                ROS_INFO_STREAM("Robots " << ri << " and " << rj << " are about to collide!");
+                ROS_INFO_STREAM("  " << ri << " is at " << robot_locations_[ri].pose.position.x << "," << robot_locations_[ri].pose.position.y);
+                ROS_INFO_STREAM("  " << rj << " is at " << robot_locations_[rj].pose.position.x << "," << robot_locations_[rj].pose.position.y);
 
                 // Let's pause both the robots. 
-                pauseRobot(ri);
-                pauseRobot(rj);
+                if (!pauseRobot(ri)) {
+                  ROS_INFO_STREAM("Couldn't pause " << ri << ". Not running collision avoidance!");
+                  break;
+                };
+                if (!pauseRobot(rj)) {
+                  ROS_INFO_STREAM("Couldn't pause " << rj << ". Not running collision avoidance!");
+                  resumeRobot(ri);
+                  continue;
+                }
 
                 // See which robot can be moved the most on the perpendicular.
                 geometry_msgs::PoseStamped bypassi = calculateBypassPoint(robot_locations_[ri], robot_locations_[rj]);
@@ -293,12 +329,14 @@ void MultiRobotPasser::spin() {
                 float bypassdistancei = getDistance(robot_locations_[ri], bypassi);
                 float bypassdistancej = getDistance(robot_locations_[rj], bypassj);
 
+                std::cin.get();
+
                 if (bypassdistancei > bypassdistancej) {
                   // Divert robot i to the bypass point.
-                  ROS_INFO_STREAM("Sending " << ri << " to bypass point, and pausing robot " << rj << ".");
+                  ROS_INFO_STREAM("Sending " << ri << " to bypass point " << bypassdistancei << " away, and pausing robot " << rj << ".");
                   sendNavigationGoal(ri, bypassi, HEADING_TO_BYPASS_POINT);
                 } else {
-                  ROS_INFO_STREAM("Sending " << rj << " to bypass point, and pausing robot " << ri << ".");
+                  ROS_INFO_STREAM("Sending " << rj << " to bypass point " << bypassdistancej << " away, and pausing robot " << ri << ".");
                   sendNavigationGoal(rj, bypassj, HEADING_TO_BYPASS_POINT);
                 }
 
@@ -337,11 +375,13 @@ void MultiRobotPasser::spin() {
           int j = intercepted_robots_[i];
           const std::string& rj = available_robots_vector[j];
           float current_distance = getDistance(robot_locations_[ri], robot_locations_[rj]);
-          if (current_distance > min_bypass_distance_[i] + 0.50f) {
+          if (current_distance > min_bypass_distance_[i] + 0.25f) {
             ROS_INFO_STREAM("Robot " << rj << " has crossed bypass point, resuming robot " << ri << " to normal goal.");
             intercepted_robots_.erase(i);
             intercepted_robots_.erase(j);
             resumeRobot(ri);
+          } else if (current_distance < min_bypass_distance_[i]) {
+            min_bypass_distance_[i] = current_distance;
           }
         }
       }
