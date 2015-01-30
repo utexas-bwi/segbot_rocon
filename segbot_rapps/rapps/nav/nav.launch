@@ -54,10 +54,7 @@
     <arg name="eband_disallow_hysteresis" value="true" />
   </include>
 
-  <!-- TODO should not have to supply default parameters unless necessary -->
   <node name="segbot_logical_navigator" pkg="segbot_logical_translator" type="segbot_logical_navigator">
-    <param name="data_directory" value="$(find segbot_concert_services)/maps/empty_world" />
-    <param name="map_file" value="$(find segbot_concert_services)/maps/empty_world/empty_world.yaml" />
     <param name="global_frame_id" value="$(arg map_frame_with_prefix)" />
     <remap from="move_base" to="move_base_interruptable" />
     <remap from="map_metadata" to="/map_metadata" />
