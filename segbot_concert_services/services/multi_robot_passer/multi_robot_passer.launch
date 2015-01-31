@@ -1,5 +1,6 @@
 <launch>
 
   <node pkg="segbot_concert_services" name="multi_robot_passer" type="multi_robot_passer"/>
+  <node pkg="segbot_concert_services" name="multi_robot_passer_gui" type="multi_robot_passer_gui"/>
 
 </launch>

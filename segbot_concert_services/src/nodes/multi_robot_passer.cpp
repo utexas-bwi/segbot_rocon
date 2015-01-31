@@ -25,6 +25,7 @@
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
 #include <segbot_concert_services/AvailableRobotArray.h>
+#include <std_msgs/Bool.h>
 #include <std_srvs/Empty.h>
 
 enum RobotStatus {
@@ -92,6 +93,13 @@ class MultiRobotPasser {
     float getDistance(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2);
     geometry_msgs::PoseStamped calculateBypassPoint(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2);
 
+    void publishStatus();
+    bool enable(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
+    bool disable(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
+    ros::ServiceServer enable_server_;
+    ros::ServiceServer disable_server_;
+    ros::Publisher status_publisher_;
+    bool enabled_;
 };
 
 MultiRobotPasser::MultiRobotPasser() : multimap_available_(false) {
@@ -106,6 +114,12 @@ MultiRobotPasser::MultiRobotPasser() : multimap_available_(false) {
 
   multimap_subscriber_ = nh.subscribe("/map_metadata", 1, &MultiRobotPasser::multimapHandler, this);
 
+  // create the enable and disable services.
+  enable_server_ = nh.advertiseService("enable", &MultiRobotPasser::enable, this);
+  disable_server_ = nh.advertiseService("disable", &MultiRobotPasser::disable, this);
+  status_publisher_ = nh.advertise<std_msgs::Bool>("status", 1, true);
+  enabled_ = false;
+  publishStatus();
 }
 
 void MultiRobotPasser::multimapHandler(const multi_level_map_msgs::MultiLevelMapData::ConstPtr& multimap) {
@@ -297,52 +311,54 @@ void MultiRobotPasser::spin() {
 
       std::vector<std::string> available_robots_vector(available_robots_.begin(), available_robots_.end());
 
-      // For each available robot, check if they are about to collide.
-      for (int i = 0; i < available_robots_vector.size(); ++i) {
-        const std::string& ri = available_robots_vector[i];
-        // Check for any new collisions.
-        if (robot_status_[ri] == NORMAL && expanded_plan_.find(ri) != expanded_plan_.end()) {
-          for (int j = i + 1; j < available_robots_vector.size(); ++j) {
-            const std::string& rj = available_robots_vector[j];
-            if (robot_status_[rj] == NORMAL && expanded_plan_.find(rj) != expanded_plan_.end()) { 
-              // Compare the expanded plans for any collision.
-              if (plansOverlap(expanded_plan_[ri], expanded_plan_[rj])) {
+      // For each available robot, check if they are about to collide. Only check for new collisions if enabled!
+      if (enabled_) {
+        for (int i = 0; i < available_robots_vector.size(); ++i) {
+          const std::string& ri = available_robots_vector[i];
+          // Check for any new collisions.
+          if (robot_status_[ri] == NORMAL && expanded_plan_.find(ri) != expanded_plan_.end()) {
+            for (int j = i + 1; j < available_robots_vector.size(); ++j) {
+              const std::string& rj = available_robots_vector[j];
+              if (robot_status_[rj] == NORMAL && expanded_plan_.find(rj) != expanded_plan_.end()) { 
+                // Compare the expanded plans for any collision.
+                if (plansOverlap(expanded_plan_[ri], expanded_plan_[rj])) {
 
-                ROS_INFO_STREAM("Robots " << ri << " and " << rj << " are about to collide!");
-                ROS_INFO_STREAM("  " << ri << " is at " << robot_locations_[ri].pose.position.x << "," << robot_locations_[ri].pose.position.y);
-                ROS_INFO_STREAM("  " << rj << " is at " << robot_locations_[rj].pose.position.x << "," << robot_locations_[rj].pose.position.y);
+                  ROS_INFO_STREAM("Robots " << ri << " and " << rj << " are about to collide!");
+                  ROS_INFO_STREAM("  " << ri << " is at " << robot_locations_[ri].pose.position.x << "," << robot_locations_[ri].pose.position.y);
+                  ROS_INFO_STREAM("  " << rj << " is at " << robot_locations_[rj].pose.position.x << "," << robot_locations_[rj].pose.position.y);
 
-                // Let's pause both the robots. 
-                if (!pauseRobot(ri)) {
-                  ROS_INFO_STREAM("Couldn't pause " << ri << ". Not running collision avoidance!");
+                  // Let's pause both the robots. 
+                  if (!pauseRobot(ri)) {
+                    ROS_INFO_STREAM("Couldn't pause " << ri << ". Not running collision avoidance!");
+                    break;
+                  };
+                  if (!pauseRobot(rj)) {
+                    ROS_INFO_STREAM("Couldn't pause " << rj << ". Not running collision avoidance!");
+                    resumeRobot(ri);
+                    continue;
+                  }
+
+                  // See which robot can be moved the most on the perpendicular.
+                  geometry_msgs::PoseStamped bypassi = calculateBypassPoint(robot_locations_[ri], robot_locations_[rj]);
+                  geometry_msgs::PoseStamped bypassj = calculateBypassPoint(robot_locations_[rj], robot_locations_[ri]);
+
+                  float bypassdistancei = getDistance(robot_locations_[ri], bypassi);
+                  float bypassdistancej = getDistance(robot_locations_[rj], bypassj);
+
+                  if (bypassdistancei > bypassdistancej) {
+                    // Divert robot i to the bypass point.
+                    ROS_INFO_STREAM("Sending " << ri << " to bypass point " << bypassdistancei << " away, and pausing robot " << rj << ".");
+                    sendNavigationGoal(ri, bypassi, HEADING_TO_BYPASS_POINT);
+                  } else {
+                    ROS_INFO_STREAM("Sending " << rj << " to bypass point " << bypassdistancej << " away, and pausing robot " << ri << ".");
+                    sendNavigationGoal(rj, bypassj, HEADING_TO_BYPASS_POINT);
+                  }
+
+                  intercepted_robots_[i] = j;
+                  intercepted_robots_[j] = i;
+
                   break;
-                };
-                if (!pauseRobot(rj)) {
-                  ROS_INFO_STREAM("Couldn't pause " << rj << ". Not running collision avoidance!");
-                  resumeRobot(ri);
-                  continue;
                 }
-
-                // See which robot can be moved the most on the perpendicular.
-                geometry_msgs::PoseStamped bypassi = calculateBypassPoint(robot_locations_[ri], robot_locations_[rj]);
-                geometry_msgs::PoseStamped bypassj = calculateBypassPoint(robot_locations_[rj], robot_locations_[ri]);
-
-                float bypassdistancei = getDistance(robot_locations_[ri], bypassi);
-                float bypassdistancej = getDistance(robot_locations_[rj], bypassj);
-
-                if (bypassdistancei > bypassdistancej) {
-                  // Divert robot i to the bypass point.
-                  ROS_INFO_STREAM("Sending " << ri << " to bypass point " << bypassdistancei << " away, and pausing robot " << rj << ".");
-                  sendNavigationGoal(ri, bypassi, HEADING_TO_BYPASS_POINT);
-                } else {
-                  ROS_INFO_STREAM("Sending " << rj << " to bypass point " << bypassdistancej << " away, and pausing robot " << ri << ".");
-                  sendNavigationGoal(rj, bypassj, HEADING_TO_BYPASS_POINT);
-                }
-
-                intercepted_robots_[i] = j;
-                intercepted_robots_[j] = i;
-
-                break;
               }
             }
           }
@@ -390,6 +406,24 @@ void MultiRobotPasser::spin() {
     ros::spinOnce();
     r.sleep();
   }
+}
+
+bool MultiRobotPasser::disable(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+  enabled_ = false;
+  publishStatus();
+  return true;
+}
+
+bool MultiRobotPasser::enable(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+  enabled_ = true;
+  publishStatus();
+  return true;
+}
+
+void MultiRobotPasser::publishStatus() {
+  std_msgs::Bool msg;
+  msg.data = enabled_;
+  status_publisher_.publish(msg);
 }
 
 int main(int argc, char *argv[]) {
