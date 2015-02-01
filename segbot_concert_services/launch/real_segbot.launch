@@ -1,0 +1,39 @@
+<launch>
+
+  <arg name="hub_uri" default="http://robot-devil.csres.utexas.edu:6380" />
+  <!-- Polling period for multimaster advertising/flipping -->
+  <arg name="gateway_watch_loop_period" default="5"/>
+  <arg name="hub_whitelist" default=""/> <!-- semi-colon separated hub names/regex patterns -->
+
+  <arg name="robot_name" default="marvin"/>
+  <arg name="robot_type" default="segbot"/>
+  <arg name="robot_icon" default="rocon_app_manager/cybernetic_pirate.png"/>
+  <arg name="rapp_package_whitelist" default="segbot_rapps,rocon_apps"/> <!-- semi colon separated list of rapp list resource names --> 
+
+  <include file="$(find rocon_app_manager)/launch/includes/_app_manager.xml">
+    <env name="REAL_SEGBOT" value="true" />
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="robot_type" value="$(arg robot_type)" />
+    <arg name="robot_icon" value="$(arg robot_icon)" />
+    <arg name="rapp_package_whitelist" value="$(arg rapp_package_whitelist)" />
+  </include>
+
+  <node pkg="rocon_gateway" type="gateway.py" name="gateway">
+    <rosparam command="load" file="$(find rocon_gateway)/param/default.yaml" />
+    <rosparam command="load" file="$(find rocon_gateway)/param/default_blacklist.yaml" />
+    <rosparam command="load" file="$(find rocon_app_manager)/param/app_manager_advertisements.yaml" />
+    <param name="hub_uri" value="$(arg hub_uri)" />
+    <param name="name" value="$(arg robot_name)"/>
+    <rosparam param="firewall">true</rosparam>
+    <param name="watch_loop_period" value="$(arg gateway_watch_loop_period)"/>
+    <param name="hub_whitelist" value="$(arg hub_whitelist)"/>
+    <param name="disable_uuids" value="true" />
+  </node>
+
+  <!-- also need to call the base driver here, i.e. the correct launch file in segbot_bringup -->
+  <group name="$(robot_name)">
+    <include file="$(find segbot_bringup)/launch/segbot_navigation.launch" />
+    <!-- <include file="$(find segbot_bringup)/launch/segbot_v2.launch" /> -->
+  </group>
+  
+</launch>

@@ -37,11 +37,14 @@
     <arg name="map_frame_id" value="$(arg map_frame_with_prefix)" />
     <arg name="base_frame_id" value="$(arg base_frame_id)" />
     <arg name="odom_frame_id" value="$(arg odom_frame_id)" />
-    <arg name="odom_alpha1" value="0.05" />
-    <arg name="odom_alpha2" value="0.05" />
-    <arg name="odom_alpha3" value="0.05" />
-    <arg name="odom_alpha4" value="0.05" />
-    <arg name="odom_alpha5" value="0.05" />
+    <group unless="$(optenv REAL_SEGBOT false)">
+      <!-- These are the simulation specific navigation parameters. -->
+      <arg name="odom_alpha1" value="0.05" />
+      <arg name="odom_alpha2" value="0.05" />
+      <arg name="odom_alpha3" value="0.05" />
+      <arg name="odom_alpha4" value="0.05" />
+      <arg name="odom_alpha5" value="0.05" />
+    </group>
   </include>
 
   <!-- interruptable navigation-->
@@ -52,8 +55,11 @@
     <arg name="global_frame" value="$(arg map_frame)" />
     <arg name="move_base_server" value="move_base_interruptable" />
     <arg name="map_topic" value="$(arg navigation_map_topic)" />
-    <arg name="eband_rotational_threshold_multiplier" value="1.5" />
-    <arg name="eband_disallow_hysteresis" value="true" />
+    <group unless="$(optenv REAL_SEGBOT false)">
+      <!-- These are the simulation specific navigation parameters. -->
+      <arg name="eband_rotational_threshold_multiplier" value="0.25" />
+      <arg name="eband_disallow_hysteresis" value="true" />
+    </group>
   </include>
 
   <node name="segbot_logical_navigator" pkg="segbot_logical_translator" type="segbot_logical_navigator">
