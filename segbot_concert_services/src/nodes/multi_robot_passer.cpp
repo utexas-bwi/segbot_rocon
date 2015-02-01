@@ -290,10 +290,10 @@ void MultiRobotPasser::spin() {
         ROS_INFO_STREAM("Adding robot " << robot << " to monitored robots.");
         // Setup all the subcribers
         ros::NodeHandle nh("/");
-        robot_locations_sub_[robot] = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(robot + "/amcl_pose", 1,
+        robot_locations_sub_[robot] = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/" + robot + "/amcl_pose", 1,
                                                    boost::bind(&MultiRobotPasser::robotLocationHandler, this, _1,
                                                                robot)); 
-        robot_path_sub_[robot] = nh.subscribe<nav_msgs::Path>(robot + "/move_base/EBandPlannerROS/global_plan", 1,
+        robot_path_sub_[robot] = nh.subscribe<nav_msgs::Path>("/" + robot + "/move_base/EBandPlannerROS/global_plan", 1,
                                               boost::bind(&MultiRobotPasser::robotPathHandler, this, _1, robot)); 
         // The robot controllers
         robot_controller_[robot] = RobotControllerPtr(new RobotController("/" + robot + "/move_base_interruptable", true)); 
