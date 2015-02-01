@@ -32,7 +32,7 @@
   </node>
 
   <!-- also need to call the base driver here, i.e. the correct launch file in segbot_bringup -->
-  <group ns="$(robot_name)">
+  <group ns="$(arg robot_name)">
     <!-- <include file="$(find segbot_bringup)/launch/segbot_navigation.launch" /> -->
     <include file="$(find segbot_bringup)/launch/segbot_v2.launch" />
   </group>
