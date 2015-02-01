@@ -49,7 +49,7 @@
 
   <!-- interruptable navigation-->
   <node name="move_base_interruptable" pkg="segbot_apps" type="move_base_interruptable_server" />
-  <node name="move_base_interruptable_simple" pkg="segbot_apps" type="move_base_interruptable_simple" />
+  <!-- <node name="move_base_interruptable_simple" pkg="segbot_apps" type="move_base_interruptable_simple" /> -->
 
   <include file="$(find segbot_navigation)/launch/move_base_eband.launch">
     <arg name="global_frame" value="$(arg map_frame)" />
