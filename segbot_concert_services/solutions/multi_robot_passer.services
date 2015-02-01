@@ -1,7 +1,7 @@
 - resource_name: segbot_concert_services/segbot_requestor
   overrides:
     parameters: segbot_concert_services/multi_robot_passer_segbot_requestor.parameters
-#- resource_name: segbot_concert_services/multi_robot_patroller
-#  overrides:
-#    parameters: segbot_concert_services/multi_robot_passer_patroller.parameters
-#- resource_name: segbot_concert_services/multi_robot_passer
+- resource_name: segbot_concert_services/multi_robot_patroller
+  overrides:
+    parameters: segbot_concert_services/multi_robot_passer_patroller.parameters
+- resource_name: segbot_concert_services/multi_robot_passer
