@@ -1,5 +1,5 @@
 name: segbot
-launch: concert_service_gazebo/segbot.launch
+launch: segbot_concert_services/segbot.launch
 flip_rule:
   pub:
     - odom

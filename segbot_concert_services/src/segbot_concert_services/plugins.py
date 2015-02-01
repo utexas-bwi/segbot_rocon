@@ -10,6 +10,8 @@ from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import Quaternion
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from segbot_concert_services.msg import AvailableRobotArray
+from std_msgs.msg import Bool
+from std_srvs.srv import Empty
 
 from python_qt_binding.QtCore import SIGNAL
 from python_qt_binding.QtGui import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
@@ -149,6 +151,75 @@ class MultiRobotPatrollerPlugin(Plugin):
                 button.setChecked(False)
 
         self.paused = (source.text() == "Pause")
+
+    def save_settings(self, plugin_settings, instance_settings):
+        pass
+
+    def restore_settings(self, plugin_settings, instance_settings):
+        pass
+
+class MultiRobotPasserGUIPlugin(Plugin):
+
+    def __init__(self, context):
+        super(MultiRobotPasserGUIPlugin, self).__init__(context)
+        # Give QObjects reasonable names
+        self.setObjectName('MultiRobotPasserGUIPlugin')
+
+        # Create QWidget
+        self.widget = QWidget()
+        self.master_layout = QVBoxLayout(self.widget)
+
+        self.buttons = {}
+        self.button_layout = QHBoxLayout()
+        self.master_layout.addLayout(self.button_layout)
+        for button_text in ["Enable", "Disable"]:
+            button = QPushButton(button_text, self.widget)
+            button.clicked[bool].connect(self.handle_button)
+            button.setCheckable(True)
+            self.button_layout.addWidget(button)
+            self.buttons[button_text] = button
+
+        self.widget.setObjectName('MultiRobotPasserGUIPluginUI')
+        if context.serial_number() > 1:
+            self.widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self.widget)
+
+        self.status_subscriber = rospy.Subscriber("status", Bool, self.status_callback)
+        self.enable = rospy.ServiceProxy("enable", Empty)
+        self.disable = rospy.ServiceProxy("disable", Empty)
+
+        self.enabled = False
+        self.connect(self.widget, SIGNAL("update"), self.update)
+
+    def status_callback(self, msg):
+        self.enabled = msg.data
+        self.widget.emit(SIGNAL("update"))
+
+    def update(self):
+        if self.enabled: 
+            self.buttons["Enable"].setChecked(True)
+            self.buttons["Disable"].setChecked(False)
+        else:
+            self.buttons["Enable"].setChecked(False)
+            self.buttons["Disable"].setChecked(True)
+
+    def handle_button(self):
+        source = self.sender()
+
+        if ((source.text() == "Enable" and self.enabled) or
+            (source.text() == "Disable" and not self.enabled)):
+            source.setChecked(True)
+            return
+
+        for _,button in self.buttons.iteritems():
+            if button != source:
+                button.setChecked(False)
+        
+        # Call appropriate service here.
+        if source.text() == "Enable":
+            self.enable()
+        else:
+            self.disable()
 
     def save_settings(self, plugin_settings, instance_settings):
         pass

@@ -10,5 +10,16 @@
       <statustip>Start/Stop Multi Robot Patrol.</statustip>
     </qtgui>
   </class>
+  <class name="MultiRobotPasserGUIPlugin"
+    type="segbot_concert_services.plugins.MultiRobotPasserGUIPlugin"
+    base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A button widget that allows you to enable/disable the multi robot passer.
+    </description>
+    <qtgui>
+      <label>Multi Robot Passer GUI Plugin</label>
+      <statustip>Enable/Disable Multi Robot Passer.</statustip>
+    </qtgui>
+  </class>
 </library>
 

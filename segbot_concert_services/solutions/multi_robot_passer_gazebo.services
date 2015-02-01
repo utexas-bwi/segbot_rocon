@@ -7,4 +7,4 @@
 - resource_name: segbot_concert_services/multi_robot_patroller
   overrides:
     parameters: segbot_concert_services/multi_robot_passer_gazebo_patroller.parameters
-#- resource_name: segbot_concert_services/multi_robot_passer
+- resource_name: segbot_concert_services/multi_robot_passer
