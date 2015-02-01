@@ -19,6 +19,7 @@
   </include>
 
   <node pkg="rocon_gateway" type="gateway.py" name="gateway">
+    <param name="network_interface" value="wlan0" />
     <rosparam command="load" file="$(find rocon_gateway)/param/default.yaml" />
     <rosparam command="load" file="$(find rocon_gateway)/param/default_blacklist.yaml" />
     <rosparam command="load" file="$(find rocon_app_manager)/param/app_manager_advertisements.yaml" />
@@ -31,9 +32,9 @@
   </node>
 
   <!-- also need to call the base driver here, i.e. the correct launch file in segbot_bringup -->
-  <group name="$(robot_name)">
-    <include file="$(find segbot_bringup)/launch/segbot_navigation.launch" />
-    <!-- <include file="$(find segbot_bringup)/launch/segbot_v2.launch" /> -->
+  <group ns="$(robot_name)">
+    <!-- <include file="$(find segbot_bringup)/launch/segbot_navigation.launch" /> -->
+    <include file="$(find segbot_bringup)/launch/segbot_v2.launch" />
   </group>
   
 </launch>

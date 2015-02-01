@@ -22,6 +22,7 @@
   <build_depend>actionlib</build_depend>
   <build_depend>boost</build_depend>
   <build_depend>bwi_mapper</build_depend>
+  <build_depend>bwi_tools</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>move_base_msgs</build_depend>
   <build_depend>multi_level_map_msgs</build_depend>
@@ -34,6 +35,7 @@
   <run_depend>actionlib_msgs</run_depend>
   <run_depend>boost</run_depend>
   <run_depend>bwi_mapper</run_depend>
+  <run_depend>bwi_tools</run_depend>
   <run_depend>concert_master</run_depend>
   <run_depend>concert_msgs</run_depend>
   <run_depend>concert_scheduler_requests</run_depend>

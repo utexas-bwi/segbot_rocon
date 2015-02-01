@@ -17,6 +17,7 @@
 #include <bwi_mapper/map_inflator.h>
 #include <bwi_mapper/map_loader.h>
 #include <bwi_mapper/map_utils.h>
+#include <bwi_tools/resource_resolver.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <move_base_msgs/MoveBaseAction.h>
@@ -126,7 +127,8 @@ void MultiRobotPasser::multimapHandler(const multi_level_map_msgs::MultiLevelMap
 
   // TODO assuming there is a single floor, read it in for now.
   const std::string& map_file = multimap->levels[0].map_file;
-  bwi_mapper::MapLoader mapper(map_file);
+  const std::string resolved_map_file = bwi_tools::resolveRosResource(map_file);
+  bwi_mapper::MapLoader mapper(resolved_map_file);
   mapper.getMap(original_map_);
   bwi_mapper::inflateMap(inflation_radius_, original_map_, inflated_map_);
   inflated_map_.header.stamp = ros::Time::now();

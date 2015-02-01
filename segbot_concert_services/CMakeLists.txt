@@ -12,6 +12,7 @@ project(segbot_concert_services)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   bwi_mapper
+  bwi_tools
   message_generation
   geometry_msgs
   move_base_msgs
@@ -38,6 +39,7 @@ catkin_package(
   CATKIN_DEPENDS 
     actionlib 
     bwi_mapper
+    bwi_tools
     geometry_msgs
     message_runtime
     move_base_msgs
