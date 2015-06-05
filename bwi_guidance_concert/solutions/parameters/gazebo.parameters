@@ -1,0 +1,24 @@
+robots:
+  - name: marvin
+    type: segbot
+    robot_rapp_whitelist: [rocon_apps, segbot_rapps, bwi_guidance_concert]
+    location: [0.0, 8.0, 0.0]
+  - name: roberto 
+    type: segbot
+    robot_rapp_whitelist: [rocon_apps, segbot_rapps, bwi_guidance_concert]
+    location: [33.5, 8.0, 1.57]
+  - name: bender 
+    type: segbot
+    robot_rapp_whitelist: [rocon_apps, segbot_rapps, bwi_guidance_concert]
+    location: [33.5, 8.0, 1.57]
+types:
+  - name: segbot
+    launch: segbot_concert_services/segbot.launch 
+    flip_rule:
+      pub:
+        - odom
+        - scan_filtered
+      sub:
+        - cmd_vel
+        - image
+world_file: utexas_gdc/2.world

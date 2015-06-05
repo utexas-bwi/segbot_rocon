@@ -22,7 +22,7 @@
 
   <build_depend>roslaunch</build_depend> <!-- unit test only -->
 
-  <!-- <run_depend>bwi_guidance_solver</run_depend> -->
+  <run_depend>bwi_guidance_solver</run_depend>
   <run_depend>concert_master</run_depend>
   <run_depend>concert_msgs</run_depend>
   <run_depend>concert_scheduler_requests</run_depend>
@@ -41,8 +41,9 @@
   <run_depend>zeroconf_msgs</run_depend>
 
   <export>
-    <rocon_app>rapps/segbot_video/segbot_video.rapp</rocon_app>
-    <concert_service>services/server/server.service</concert_service>
+    <rocon_app>rapps/guidance/guidance.rapp</rocon_app>
+    <concert_service>services/guidance/guidance.service</concert_service>
+    <concert_service>services/guidance_gazebo/guidance_gazebo.service</concert_service>
   </export>
 
 </package>

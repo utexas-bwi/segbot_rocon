@@ -1,0 +1,6 @@
+display:          Segbot Guidance
+description:      Runs the guidance on a single robot so that the centralized controller can run multi-robot guidance.
+compatibility:    rocon:/
+launch:           guidance.launch
+public_interface: guidance.interface
+icon:             guidance.png

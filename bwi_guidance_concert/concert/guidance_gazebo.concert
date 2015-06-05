@@ -2,7 +2,7 @@
 
   <launch title="concert:11311" package="segbot_concert_services" name="concert.launch" port="11311" >
     <arg name="concert_name" value="GuidanceConcert" />
-    <arg name="services" value="bwi_guidance_concert/guidance.services" />
+    <arg name="services" value="bwi_guidance_concert/guidance_gazebo.services" />
   </launch>
 
 </concert>

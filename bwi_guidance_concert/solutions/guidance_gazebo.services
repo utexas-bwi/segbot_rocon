@@ -1,3 +1,6 @@
+- resource_name: segbot_concert_services/segbot_gazebo
+  overrides:
+    parameters: bwi_guidance_services/gazebo.parameters
 - resource_name: segbot_concert_services/segbot_requestor
   overrides:
     parameters: bwi_guidance_services/segbot_requestor.parameters

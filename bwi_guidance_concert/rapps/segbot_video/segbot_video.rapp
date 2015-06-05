@@ -1,6 +1,0 @@
-display: Segbot Video
-description: Allows a service to gain control of a simulated robot's GUI
-compatibility: rocon:/
-launch: bwi_guidance_concert/segbot_video.launch
-public_interface: bwi_guidance_concert/segbot_video.interface
-icon: bwi_guidance_concert/segbot_video.png
