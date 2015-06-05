@@ -6,22 +6,13 @@ catkin_package()
 
 # Install scripts and configuration/launch files
 install(
-  PROGRAMS 
+  PROGRAMS
     scripts/acquire_robots
     scripts/gazebo
     scripts/server
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-foreach(dir concert launch rapps services solutions)
+foreach(dir concert rapps services solutions)
   install(DIRECTORY ${dir}
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 endforeach()
-
-# Unit tests are enabled selectively
-if (CATKIN_ENABLE_TESTING)
-  find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(launch)
-  roslaunch_add_file_check(rapps)
-  roslaunch_add_file_check(services)
-  roslaunch_add_file_check(solutions)
-endif()

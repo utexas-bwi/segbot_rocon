@@ -1,2 +1,4 @@
-robots: 4 # request an extra one so that the requests don't get cancelled.
+robots: 3
 rapp_name: bwi_guidance_concert/guidance
+multi_level_map_server:
+  map_file: package://utexas_gdc/maps/simulation/multimap/2_only_multimap.yaml
