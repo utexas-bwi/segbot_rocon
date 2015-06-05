@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   bwi_mapper
   bwi_tools
-  message_generation
   geometry_msgs
   move_base_msgs
   multi_level_map_msgs
@@ -25,15 +24,6 @@ find_package(Boost REQUIRED)
 
 catkin_python_setup()
 
-add_message_files(
-  FILES
-  AvailableRobotArray.msg
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
 
 catkin_package(
   CATKIN_DEPENDS 
@@ -41,7 +31,6 @@ catkin_package(
     bwi_mapper
     bwi_tools
     geometry_msgs
-    message_runtime
     move_base_msgs
     multi_level_map_msgs
     nav_msgs
@@ -52,7 +41,6 @@ catkin_package(
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 add_executable(multi_robot_passer src/nodes/multi_robot_passer.cpp)
 target_link_libraries(multi_robot_passer ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(multi_robot_passer ${PROJECT_NAME}_generate_messages_cpp)
 
 ##############################################################################
 # Installs

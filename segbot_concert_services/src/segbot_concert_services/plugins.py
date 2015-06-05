@@ -9,7 +9,7 @@ import time
 from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import Quaternion
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from segbot_concert_services.msg import AvailableRobotArray
+from bwi_msgs.msg import AvailableRobotArray
 from std_msgs.msg import Bool
 from std_srvs.srv import Empty
 
@@ -117,9 +117,8 @@ class MultiRobotPatrollerPlugin(Plugin):
                 time.sleep(1.0)
 
     def available_robot_callback(self, msg):
-        for robot_resource in msg.robot_name:
-            results = robot_resource.split('/')
-            robot_name = results[2]
+        for robot in msg.robots:
+            robot_name = robot.name
             if robot_name not in self.available_robots:
                 self.available_robots.append(robot_name)
                 thread.start_new_thread(self.navigate_robot, (robot_name, self.global_start_counter,

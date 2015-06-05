@@ -24,7 +24,7 @@ import concert_scheduler_requests
 import unique_id
 import scheduler_msgs.msg as scheduler_msgs
 import concert_msgs.msg as concert_msgs
-from segbot_concert_services.msg import AvailableRobotArray
+from bwi_msgs.msg import AvailableRobot, AvailableRobotArray
 import rocon_uri
 
 ##############################################################################
@@ -64,6 +64,7 @@ class SegbotRequestor:
         self.allocated_resources = []
         self.status_publisher = rospy.Publisher('/available_robots', AvailableRobotArray, latch=True)
         number_of_segbots = rospy.get_param("robots", default=10)
+        self.rapp_name = rospy.get_param("rapp_name", default='segbot_rapps/nav')
         rospy.loginfo("SegbotRequestor : requesting %s segbots" % number_of_segbots)
         for unused_i in range(0, number_of_segbots):
             self.request_segbot()
@@ -83,7 +84,7 @@ class SegbotRequestor:
         '''
         resource = scheduler_msgs.Resource()
         resource.id = unique_id.toMsg(unique_id.fromRandom())
-        resource.rapp = 'bwi_guidance_concert/guidance'
+        resource.rapp = self.rapp_name
         resource.uri = 'rocon:/'
         resource_request_id = self.requester.new_request([resource], priority=self.service_priority)
         self.pending_requests.append(resource_request_id)
@@ -105,7 +106,9 @@ class SegbotRequestor:
                     self.pending_requests.remove(request_id)
                     self.allocated_requests.append(request_id)
                     # TODO doesn't handle the case when an allocated resource gets preempted.
-                    self.allocated_resources.append(str(request.msg.resources[0].uri))
+                    robot_name = str(request.msg.resources[0].uri).split('/')[2]
+                    self.allocated_resources.append(AvailableRobot(name=robot_name,
+                                                                   type=AvailableRobot.SEGBOT))
                     self.status_publisher.publish(self.allocated_resources)
             elif request.msg.status == scheduler_msgs.Request.GRANTED:
                 completely_unallocated = True

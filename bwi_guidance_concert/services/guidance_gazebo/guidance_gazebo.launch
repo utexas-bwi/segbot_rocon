@@ -7,7 +7,8 @@
       <arg name="x" value="56" />
       <arg name="y" value="60" />
       <arg name="yaw" value="0" />
-      <arg name="personid" default="$(arg personid)" />
+      <arg name="personid" value="$(arg personid)" />
+      <arg name="world" value="services/segbotgazebo/gazebo" />
     </include>
     <node name="odom_to_pose" pkg="bwi_guidance_solver" type="odom_to_pose" />
   </group>

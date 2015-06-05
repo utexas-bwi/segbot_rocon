@@ -25,7 +25,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
-#include <segbot_concert_services/AvailableRobotArray.h>
+#include <bwi_msgs/AvailableRobotArray.h>
 #include <std_msgs/Bool.h>
 #include <std_srvs/Empty.h>
 
@@ -52,7 +52,7 @@ class MultiRobotPasser {
     ros::Subscriber multimap_subscriber_;
     bool multimap_available_;
 
-    void availableRobotArrayHandler(const segbot_concert_services::AvailableRobotArray::ConstPtr& robots);
+    void availableRobotArrayHandler(const bwi_msgs::AvailableRobotArray::ConstPtr& robots);
     ros::Subscriber available_robots_subscriber_;
     std::set<std::string> available_robots_;
 
@@ -191,12 +191,9 @@ void MultiRobotPasser::robotPathHandler(const nav_msgs::Path::ConstPtr& path, st
   expanded_plan_publisher_[robot_name].publish(expanded_plan_[robot_name]);
 }
 
-void MultiRobotPasser::availableRobotArrayHandler(const segbot_concert_services::AvailableRobotArray::ConstPtr& robots) {
-  BOOST_FOREACH(const std::string resource_str, robots->robot_name) {
-    std::vector<std::string> results;
-    boost::split(results, resource_str, boost::is_any_of("/"));
-    std::string robot_name = results[2];
-    available_robots_.insert(robot_name);
+void MultiRobotPasser::availableRobotArrayHandler(const bwi_msgs::AvailableRobotArray::ConstPtr& robots) {
+  BOOST_FOREACH(const bwi_msgs::AvailableRobot robot, robots->robots) {
+    available_robots_.insert(robot.name);
   }
 }
 
