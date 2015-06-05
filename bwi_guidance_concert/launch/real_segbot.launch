@@ -3,7 +3,7 @@
   <arg name="robot_name" default="marvin"/>
   <arg name="v1" default="false"/>
 
-  <include file="$(find segbot_concert_services)">
+  <include file="$(find segbot_concert_services)/launch/real_segbot.launch">
     <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="v1" value="$(arg v1)"/>
     <arg name="rapp_package_whitelist" value="bwi_guidance_concert,segbot_rapps,rocon_apps"/> <!-- semi colon separated list of rapp list resource names -->
