@@ -3,6 +3,6 @@ description: Launch the guidance web service that takes control of the robots an
 author: Piyush Khandelwal
 priority: 3
 launcher_type: roslaunch
-launcher: bwi_guidance_concert/guidance.launch
-icon: bwi_guidance_concert/guidance.png
-#parameters: bwi_guidance_concert/guidance.parameters 
+launcher: bwi_guidance_concert/guidance_real.launch
+icon: bwi_guidance_concert/guidance_real.png
+#parameters: bwi_guidance_concert/guidance_real.parameters

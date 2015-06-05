@@ -9,7 +9,7 @@
     results from this experiment were reported in the following symposium
     paper: Piyush Khandelwal and Peter Stone. Multi-robot Human Guidance using
     Topological Graphs. In AAAI Spring 2014 Symposium on Qualitative
-    Representations for Robots (AAAI-SSS), March 2014. 
+    Representations for Robots (AAAI-SSS), March 2014.
   </description>
 
   <maintainer email="piyushk@gmail.com">Piyush Khandelwal</maintainer>
@@ -37,12 +37,12 @@
   <run_depend>segbot_concert_services</run_depend>
 
   <!-- Dependencies required for running a concert on Ubuntu -->
-  <run_depend>zeroconf_avahi</run_depend> 
+  <run_depend>zeroconf_avahi</run_depend>
   <run_depend>zeroconf_msgs</run_depend>
 
   <export>
     <rocon_app>rapps/guidance/guidance.rapp</rocon_app>
-    <concert_service>services/guidance/guidance.service</concert_service>
+    <concert_service>services/guidance_real/guidance_real.service</concert_service>
     <concert_service>services/guidance_gazebo/guidance_gazebo.service</concert_service>
   </export>
 
