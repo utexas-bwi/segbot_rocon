@@ -1,4 +1,4 @@
 - resource_name: segbot_concert_services/segbot_requestor
   overrides:
-    parameters: bwi_guidance_concert/segbot_requestor.parameters
+    parameters: bwi_guidance_concert/real_segbot_requestor.parameters
 - resource_name: bwi_guidance_concert/guidance

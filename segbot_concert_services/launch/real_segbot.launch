@@ -8,7 +8,9 @@
   <arg name="robot_name" default="marvin"/>
   <arg name="robot_type" default="segbot"/>
   <arg name="robot_icon" default="rocon_app_manager/cybernetic_pirate.png"/>
-  <arg name="rapp_package_whitelist" default="segbot_rapps,rocon_apps"/> <!-- semi colon separated list of rapp list resource names --> 
+  <arg name="rapp_package_whitelist" default="segbot_rapps,rocon_apps"/> <!-- semi colon separated list of rapp list resource names -->
+
+  <arg name="v1" default="false" />
 
   <include file="$(find rocon_app_manager)/launch/includes/_app_manager.xml">
     <env name="REAL_SEGBOT" value="true" />
@@ -33,14 +35,12 @@
 
   <!-- also need to call the base driver here, i.e. the correct launch file in segbot_bringup -->
   <group ns="$(arg robot_name)">
-    <!-- 
-    <include file="$(find segbot_bringup)/launch/segbot_navigation.launch">
+    <include if="$(arg v1)" file="$(find segbot_bringup)/launch/segbot_v1.launch">
       <arg name="tf_prefix" value="$(arg robot_name)" />
     </include>
-     -->
-    <include file="$(find segbot_bringup)/launch/segbot_v2.launch">
+    <include unless="$(arg v1)" file="$(find segbot_bringup)/launch/segbot_v2.launch">
       <arg name="tf_prefix" value="$(arg robot_name)" />
     </include>
   </group>
-  
+
 </launch>
