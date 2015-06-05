@@ -21,9 +21,9 @@
     <param name="global_frame_id" value="$(arg map_frame_with_prefix)" />
     <remap from="map_metadata" to="/map_metadata" />
   </node>
-  <node name="level_selector" pkg="multi_level_map_utils" type="level_selector">
-    <remap from="map_metadata" to="/map_metadata" />
-  </node>
+  <!-- <node name="level_selector" pkg="multi_level_map_utils" type="level_selector"> -->
+  <!--   <remap from="map_metadata" to="/map_metadata" /> -->
+  <!-- </node> -->
 
   <!-- localization -->
   <include file="$(find segbot_navigation)/launch/amcl.launch">
@@ -43,8 +43,8 @@
   </include>
 
   <!-- interruptable navigation-->
-  <node name="move_base_interruptable" pkg="segbot_apps" type="move_base_interruptable_server" />
-  <!-- <node name="move_base_interruptable_simple" pkg="segbot_apps" type="move_base_interruptable_simple" /> -->
+  <node name="move_base_interruptable" pkg="segbot_navigation" type="move_base_interruptable_server" />
+  <!-- <node name="move_base_interruptable_simple" pkg="segbot_navigation" type="move_base_interruptable_simple" /> -->
 
   <include file="$(find segbot_navigation)/launch/move_base_eband.launch">
     <arg name="global_frame" value="$(arg map_frame)" />
@@ -57,10 +57,12 @@
     </group>
   </include>
 
-  <node name="rviz" type="rviz_runner.sh" pkg="segbot_apps" args="$(find segbot_apps)/nav_eband.rviz $(arg tf_prefix)" />
+  <node name="rviz" type="rviz_runner" pkg="segbot_navigation" args="ns $(arg tf_prefix)" />
 
   <node name="robot_visualizer" pkg="bwi_guidance_solver" type="rqt_gui_runner" args="ns $(arg tf_prefix)" />
 
-  <node name="guidance_gui" type="guidance_gui_controller" pkg="bwi_guidance_solver" />
+  <node name="guidance_gui" type="guidance_gui_controller" pkg="bwi_guidance_solver">
+    <param name="goals_file" value="$(find bwi_guidance_solver)/config/robot/atrium_goals.yaml" />
+  </node>
 
 </launch>

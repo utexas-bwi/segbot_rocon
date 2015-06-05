@@ -6,6 +6,7 @@ subscribers:
   - /map_metadata
 services:
   - update_gui
-action_clients: []
+action_clients:
+  - /guidance
 action_servers: 
   - move_base_interruptable

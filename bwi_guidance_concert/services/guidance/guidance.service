@@ -5,4 +5,4 @@ priority: 3
 launcher_type: roslaunch
 launcher: bwi_guidance_concert/guidance.launch
 icon: bwi_guidance_concert/guidance.png
-parameters: bwi_guidance_concert/guidance.parameters 
+#parameters: bwi_guidance_concert/guidance.parameters 

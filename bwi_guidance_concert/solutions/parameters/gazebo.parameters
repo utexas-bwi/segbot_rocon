@@ -2,15 +2,15 @@ robots:
   - name: marvin
     type: segbot
     robot_rapp_whitelist: [rocon_apps, segbot_rapps, bwi_guidance_concert]
-    location: [0.0, 8.0, 0.0]
+    location: [18.5, 29.5, 0.0]
   - name: roberto 
     type: segbot
     robot_rapp_whitelist: [rocon_apps, segbot_rapps, bwi_guidance_concert]
-    location: [33.5, 8.0, 1.57]
+    location: [57, 24.5, 0]
   - name: bender 
     type: segbot
     robot_rapp_whitelist: [rocon_apps, segbot_rapps, bwi_guidance_concert]
-    location: [33.5, 8.0, 1.57]
+    location: [57, 60, 0]
 types:
   - name: segbot
     launch: segbot_concert_services/segbot.launch 
