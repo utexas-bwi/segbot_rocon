@@ -32,14 +32,12 @@
     <arg name="map_frame_id" value="$(arg map_frame_with_prefix)" />
     <arg name="base_frame_id" value="$(arg base_frame_id)" />
     <arg name="odom_frame_id" value="$(arg odom_frame_id)" />
-    <group unless="$(optenv REAL_SEGBOT false)">
-      <!-- These are the simulation specific navigation parameters. -->
-      <arg name="odom_alpha1" value="0.05" />
-      <arg name="odom_alpha2" value="0.05" />
-      <arg name="odom_alpha3" value="0.05" />
-      <arg name="odom_alpha4" value="0.05" />
-      <arg name="odom_alpha5" value="0.05" />
-    </group>
+    <!-- These are the simulation specific navigation parameters. -->
+    <arg unless="$(optenv REAL_SEGBOT true)" name="odom_alpha1" value="0.05" />
+    <arg unless="$(optenv REAL_SEGBOT true)" name="odom_alpha2" value="0.05" />
+    <arg unless="$(optenv REAL_SEGBOT true)" name="odom_alpha3" value="0.05" />
+    <arg unless="$(optenv REAL_SEGBOT true)" name="odom_alpha4" value="0.05" />
+    <arg unless="$(optenv REAL_SEGBOT true)" name="odom_alpha5" value="0.05" />
   </include>
 
   <!-- interruptable navigation-->
@@ -50,11 +48,9 @@
     <arg name="global_frame" value="$(arg map_frame)" />
     <arg name="move_base_server" value="move_base_interruptable" />
     <arg name="map_topic" value="$(arg navigation_map_topic)" />
-    <group unless="$(optenv REAL_SEGBOT false)">
-      <!-- These are the simulation specific navigation parameters. -->
-      <arg name="eband_rotational_threshold_multiplier" value="0.25" />
-      <arg name="eband_disallow_hysteresis" value="true" />
-    </group>
+    <!-- These are the simulation specific navigation parameters. -->
+    <arg unless="$(optenv REAL_SEGBOT true)" name="eband_rotational_threshold_multiplier" value="0.25" />
+    <arg unless="$(optenv REAL_SEGBOT true)" name="eband_disallow_hysteresis" value="true" />
   </include>
 
   <node name="rviz" type="rviz_runner" pkg="segbot_navigation" args="ns $(arg tf_prefix)" />
