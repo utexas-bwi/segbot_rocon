@@ -48,8 +48,8 @@
   </include>
 
   <!-- interruptable navigation-->
-  <node name="move_base_interruptable" pkg="segbot_apps" type="move_base_interruptable_server" />
-  <!-- <node name="move_base_interruptable_simple" pkg="segbot_apps" type="move_base_interruptable_simple" /> -->
+  <node name="move_base_interruptable" pkg="segbot_navigation" type="move_base_interruptable_server" />
+  <!-- <node name="move_base_interruptable_simple" pkg="segbot_navigation" type="move_base_interruptable_simple" /> -->
 
   <include file="$(find segbot_navigation)/launch/move_base_eband.launch">
     <arg name="global_frame" value="$(arg map_frame)" />
@@ -68,6 +68,6 @@
     <remap from="map_metadata" to="/map_metadata" />
   </node>
 
-  <node name="rviz" type="rviz_runner.sh" pkg="segbot_apps" args="$(find segbot_apps)/nav_eband.rviz $(arg tf_prefix)" />
+  <node name="rviz" type="rviz_runner" pkg="segbot_navigation" args="$(find segbot_navigation)/nav_eband.rviz $(arg tf_prefix)" />
 
 </launch>
