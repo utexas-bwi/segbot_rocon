@@ -1,0 +1,25 @@
+<launch>
+
+  <!-- Launch the person -->
+  <group ns="person">
+    <arg name="personid" default="person" />
+    <include file="$(find bwi_gazebo_entities)/launch/controllable_person.launch">
+      <arg name="x" value="56" />
+      <arg name="y" value="60" />
+      <arg name="yaw" value="0" />
+      <arg name="personid" value="$(arg personid)" />
+      <arg name="world" value="services/segbotgazebo/gazebo" />
+    </include>
+    <node name="odom_to_pose" pkg="bwi_guidance_solver" type="odom_to_pose" />
+  </group>
+
+  <node name="person_visualizer" pkg="rqt_gui" type="rqt_gui" args="--perspective-file $(find bwi_guidance_solver)/perspectives/person.perspective" />
+
+  <!-- Launch the base robot navigator -->
+  <node name="base_robot_navigator" pkg="bwi_guidance_solver" type="base_robot_navigator">
+    <param name="map_file" value="$(find utexas_gdc)/maps/simulation/2/2.yaml" />
+    <param name="graph_file" value="$(find bwi_guidance_solver)/maps/graph_2.yaml" />
+    <param name="tasks_file" value="$(find bwi_guidance_solver)/config/robot/atrium_task_list.yaml" />
+  </node>
+
+</launch>

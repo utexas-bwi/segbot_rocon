@@ -1,0 +1,8 @@
+name: BWI Guidance Server Service
+description: Launch the guidance web service that takes control of the robots and interacts with them.
+author: Piyush Khandelwal
+priority: 3
+launcher_type: roslaunch
+launcher: bwi_guidance_concert/guidance_real.launch
+icon: bwi_guidance_concert/guidance_real.png
+#parameters: bwi_guidance_concert/guidance_real.parameters

@@ -1,0 +1,6 @@
+- resource_name: segbot_concert_services/segbot_gazebo
+  overrides:
+    parameters: bwi_task_planning/gazebo.parameters
+- resource_name: segbot_concert_services/segbot_requestor
+  overrides:
+    parameters: bwi_task_planning/segbot_requestor.parameters
